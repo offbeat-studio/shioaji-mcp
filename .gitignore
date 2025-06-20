@@ -1,0 +1,24 @@
+# Python-generated files
+__pycache__/
+*/__pycache__/
+**/__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Environment files
+.env
+
+# Shioaji log file
+shioaji.log
+
+# UV lock file
+uv.lock
+
+# Git directory (should never be tracked)
+.git/
