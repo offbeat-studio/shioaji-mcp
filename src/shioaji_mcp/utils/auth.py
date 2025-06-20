@@ -7,10 +7,16 @@ from dotenv import load_dotenv
 
 from .shioaji_wrapper import get_shioaji
 
+# Don't import shioaji at module level to avoid read-only filesystem issues
+
 logger = logging.getLogger(__name__)
 
-# Load environment variables
+# Load environment variables from .env file if it exists
 load_dotenv()
+
+# Debug: Log environment variables (without exposing secrets)
+logger.info(f"SHIOAJI_API_KEY present: {bool(os.getenv('SHIOAJI_API_KEY'))}")
+logger.info(f"SHIOAJI_SECRET_KEY present: {bool(os.getenv('SHIOAJI_SECRET_KEY'))}")
 
 
 class ShioajiAuth:
@@ -21,52 +27,48 @@ class ShioajiAuth:
         self._is_connected = False
         self._sj = None
 
-    async def login(
-        self,
-        api_key: str | None = None,
-        secret_key: str | None = None,
-        person_id: str | None = None,
-        password: str | None = None,
-    ) -> dict:
-        """Login to Shioaji API."""
+    def _auto_connect(self):
+        """Auto-connect using environment variables."""
+        if self._is_connected:
+            return
+            
         try:
-            # Use provided credentials or fall back to environment variables
-            api_key = api_key or os.getenv("SHIOAJI_API_KEY")
-            secret_key = secret_key or os.getenv("SHIOAJI_SECRET_KEY")
-            person_id = person_id or os.getenv("SHIOAJI_PERSON_ID")
-            password = password or os.getenv("SHIOAJI_PASSWORD")
+            api_key = os.getenv("SHIOAJI_API_KEY")
+            secret_key = os.getenv("SHIOAJI_SECRET_KEY")
+            
+            logger.info(f"Attempting connection with API key: {api_key[:10] + '...' if api_key else 'None'}")
+            logger.info(f"Secret key present: {bool(secret_key)}")
 
-            if not all([api_key, secret_key, person_id, password]):
-                raise ValueError("Missing required credentials")
+            if not all([api_key, secret_key]):
+                available_env = {k: v for k, v in os.environ.items() if 'SHIOAJI' in k}
+                logger.error(f"Available SHIOAJI env vars: {list(available_env.keys())}")
+                raise ValueError("Missing SHIOAJI_API_KEY or SHIOAJI_SECRET_KEY environment variables")
 
-            # Get Shioaji module and create instance
-            self._sj = get_shioaji()
-            self.api = self._sj.Shioaji()
+            # Test Shioaji import before attempting connection
+            try:
+                self._sj = get_shioaji()
+                self.api = self._sj.Shioaji()
+            except ImportError as import_error:
+                raise RuntimeError(f"Shioaji import failed: {import_error}") from import_error
 
-            # Login
+            # Login with API credentials only
             accounts = self.api.login(
                 api_key=api_key,
                 secret_key=secret_key,
-                person_id=person_id,
-                passwd=password,
             )
 
             self._is_connected = True
-            logger.info("Successfully logged in to Shioaji")
-
-            return {
-                "success": True,
-                "message": "Login successful",
-                "accounts": [acc.account_id for acc in accounts] if accounts else [],
-            }
+            logger.info("Successfully auto-connected to Shioaji")
 
         except Exception as e:
-            logger.error(f"Login failed: {e}")
+            error_msg = str(e)
+            if "expired" in error_msg.lower():
+                logger.error(f"API key expired: {e}")
+                raise RuntimeError(f"Shioaji API key has expired. Please get a new API key from your broker: {e}")
+            else:
+                logger.error(f"Auto-connect failed: {e}")
             self._is_connected = False
-            return {
-                "success": False,
-                "message": f"Login failed: {str(e)}",
-            }
+            raise
 
     async def logout(self) -> dict:
         """Logout from Shioaji API."""
@@ -84,12 +86,17 @@ class ShioajiAuth:
 
     def is_connected(self) -> bool:
         """Check if connected to Shioaji API."""
+        if not self._is_connected:
+            try:
+                self._auto_connect()
+            except Exception:
+                return False
         return self._is_connected and self.api is not None
 
     def get_api(self):
         """Get the Shioaji API instance."""
         if not self.is_connected():
-            raise RuntimeError("Not connected to Shioaji API. Please login first.")
+            raise RuntimeError("Not connected to Shioaji API. Please set SHIOAJI_API_KEY and SHIOAJI_SECRET_KEY environment variables.")
         return self.api
 
 

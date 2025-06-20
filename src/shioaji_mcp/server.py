@@ -9,7 +9,9 @@ from mcp.server.models import InitializationOptions
 from mcp.server.stdio import stdio_server
 from mcp.types import (
     Tool,
+    ServerCapabilities,
 )
+
 
 from .tools.contracts import search_contracts
 from .tools.market_data import get_kbars, get_snapshots
@@ -30,20 +32,7 @@ server = Server("shioaji-mcp")
 async def handle_list_tools() -> list[Tool]:
     """List available tools."""
     return [
-        Tool(
-            name="shioaji_login",
-            description="Login to Shioaji API",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "api_key": {"type": "string", "description": "API key"},
-                    "secret_key": {"type": "string", "description": "Secret key"},
-                    "person_id": {"type": "string", "description": "Person ID"},
-                    "password": {"type": "string", "description": "Password"},
-                },
-                "required": ["api_key", "secret_key", "person_id", "password"],
-            },
-        ),
+
         Tool(
             name="get_account_info",
             description="Get account information",
@@ -52,14 +41,7 @@ async def handle_list_tools() -> list[Tool]:
                 "properties": {},
             },
         ),
-        Tool(
-            name="shioaji_logout",
-            description="Logout from Shioaji API",
-            inputSchema={
-                "type": "object",
-                "properties": {},
-            },
-        ),
+
         Tool(
             name="search_contracts",
             description="Search for trading contracts",
@@ -175,12 +157,8 @@ async def handle_list_tools() -> list[Tool]:
 @server.call_tool()
 async def handle_call_tool(name: str, arguments: dict[str, Any] | None) -> list[Any]:
     """Handle tool calls."""
-    if name == "shioaji_login":
-        return await handle_login(arguments or {})
-    elif name == "get_account_info":
+    if name == "get_account_info":
         return await handle_get_account_info()
-    elif name == "shioaji_logout":
-        return await handle_logout()
     elif name == "search_contracts":
         return await search_contracts(arguments or {})
     elif name == "get_snapshots":
@@ -201,47 +179,12 @@ async def handle_call_tool(name: str, arguments: dict[str, Any] | None) -> list[
         raise ValueError(f"Unknown tool: {name}")
 
 
-async def handle_login(arguments: dict[str, Any]) -> list[Any]:
-    """Handle Shioaji login."""
-    try:
-        result = await auth_manager.login(
-            api_key=arguments.get("api_key"),
-            secret_key=arguments.get("secret_key"),
-            person_id=arguments.get("person_id"),
-            password=arguments.get("password"),
-        )
-
-        if result["success"]:
-            return format_success_response(result, "Successfully logged in to Shioaji")
-        else:
-            return format_error_response(Exception(result["message"]))
-
-    except Exception as e:
-        logger.error(f"Login error: {e}")
-        return format_error_response(e)
-
-
-async def handle_logout() -> list[Any]:
-    """Handle Shioaji logout."""
-    try:
-        result = await auth_manager.logout()
-
-        if result["success"]:
-            return format_success_response(None, result["message"])
-        else:
-            return format_error_response(Exception(result["message"]))
-
-    except Exception as e:
-        logger.error(f"Logout error: {e}")
-        return format_error_response(e)
-
-
 async def handle_get_account_info() -> list[Any]:
     """Handle get account info."""
     try:
         if not auth_manager.is_connected():
             return format_error_response(
-                Exception("Not logged in. Please login first.")
+                Exception("Not connected. Please set SHIOAJI_API_KEY and SHIOAJI_SECRET_KEY environment variables.")
             )
 
         api = auth_manager.get_api()
@@ -270,6 +213,11 @@ async def handle_get_account_info() -> list[Any]:
 async def main():
     """Main entry point for the MCP server."""
     logger.info("Starting Shioaji MCP Server")
+    
+    # Log environment variables for debugging
+    import os
+    logger.info(f"Environment check - API key present: {bool(os.getenv('SHIOAJI_API_KEY'))}")
+    logger.info(f"Environment check - Secret key present: {bool(os.getenv('SHIOAJI_SECRET_KEY'))}")
 
     async with stdio_server() as (read_stream, write_stream):
         await server.run(
@@ -278,17 +226,22 @@ async def main():
             InitializationOptions(
                 server_name="shioaji-mcp",
                 server_version="0.1.0",
-                capabilities=server.get_capabilities(
-                    notification_options=None,
-                    experimental_capabilities=None,
-                ),
-            ),
+                capabilities=ServerCapabilities(
+                    tools={}
+                )
+            )
         )
 
 
 def cli_main():
     """CLI entry point."""
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        logger.info("Server stopped by user")
+    except Exception as e:
+        logger.error(f"Server error: {e}")
+        raise
 
 
 if __name__ == "__main__":
