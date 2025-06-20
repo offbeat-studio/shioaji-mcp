@@ -5,9 +5,7 @@
       "args": ["shioaji-mcp"],
       "env": {
         "SHIOAJI_API_KEY": "your_api_key_here",
-        "SHIOAJI_SECRET_KEY": "your_secret_key_here", 
-        "SHIOAJI_PERSON_ID": "your_person_id_here",
-        "SHIOAJI_PASSWORD": "your_password_here"
+        "SHIOAJI_SECRET_KEY": "your_secret_key_here"
       }
     }
   }
