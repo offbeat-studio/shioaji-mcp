@@ -5,8 +5,7 @@ A Model Context Protocol (MCP) server that provides access to Shioaji trading AP
 ## Features
 
 ### Authentication & Connection
-- `shioaji_login` - Login to Shioaji API with credentials
-- `shioaji_logout` - Logout from Shioaji API
+- Automatic authentication using environment variables
 - `get_account_info` - Get account information
 
 ### Market Data
@@ -51,9 +50,9 @@ Create a `.env` file with your Shioaji credentials:
 ```env
 SHIOAJI_API_KEY=your_api_key_here
 SHIOAJI_SECRET_KEY=your_secret_key_here
-SHIOAJI_PERSON_ID=your_person_id_here
-SHIOAJI_PASSWORD=your_password_here
 ```
+
+**Note**: You need to obtain API credentials from your broker (Sinopac Securities). This MCP server uses **real Shioaji API** - no mock data.
 
 ## Usage
 
@@ -69,9 +68,7 @@ Add to your MCP client configuration:
       "args": ["shioaji-mcp"],
       "env": {
         "SHIOAJI_API_KEY": "your_api_key_here",
-        "SHIOAJI_SECRET_KEY": "your_secret_key_here",
-        "SHIOAJI_PERSON_ID": "your_person_id_here", 
-        "SHIOAJI_PASSWORD": "your_password_here"
+        "SHIOAJI_SECRET_KEY": "your_secret_key_here"
       }
     }
   }
@@ -81,19 +78,24 @@ Add to your MCP client configuration:
 ### Direct Usage
 
 ```python
+# Set environment variables first
+import os
+os.environ["SHIOAJI_API_KEY"] = "your_api_key"
+os.environ["SHIOAJI_SECRET_KEY"] = "your_secret_key"
+
 from shioaji_mcp.server import handle_call_tool
 
-# Login
-result = await handle_call_tool("shioaji_login", {
-    "api_key": "your_key",
-    "secret_key": "your_secret", 
-    "person_id": "your_id",
-    "password": "your_password"
-})
+# Get account info (auto-connects)
+result = await handle_call_tool("get_account_info", {})
 
 # Search contracts
 contracts = await handle_call_tool("search_contracts", {
     "keyword": "台積電"
+})
+
+# Get real market data
+snapshots = await handle_call_tool("get_snapshots", {
+    "contracts": ["2330", "2317"]
 })
 
 # Place order
@@ -133,6 +135,9 @@ uv run --extra lint isort src/ tests/
 ### Example Usage
 
 ```bash
+# Run the real usage example (requires valid credentials)
+uv run python examples/real_usage.py
+
 # Run the basic usage example
 uv run python examples/basic_usage.py
 ```
@@ -142,13 +147,21 @@ uv run python examples/basic_usage.py
 - **Server**: Main MCP server implementation with tool registration
 - **Tools**: Modular tool implementations for different functionality areas
 - **Utils**: Authentication management and data formatting utilities
-- **Mock Support**: Fallback mock implementation for development
+- **Real API**: Uses actual Shioaji API for all trading operations
 
 ## Compatibility
 
 - Python 3.10-3.12
-- Shioaji API (with mock fallback for development)
+- Shioaji API (real trading API)
 - MCP Protocol 1.0+
+
+## Important Notes
+
+⚠️ **This MCP server connects to the real Shioaji trading API**
+- All operations use real market data
+- Trading operations will execute real orders
+- Make sure you understand the risks before placing orders
+- Test with small amounts first
 
 ## License
 

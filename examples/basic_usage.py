@@ -17,28 +17,14 @@ async def main():
         print(f"   - {tool.name}: {tool.description}")
     print()
 
-    # Login example
-    print("2. Login Example:")
-    login_result = await handle_call_tool(
-        "shioaji_login",
-        {
-            "api_key": "demo_key",
-            "secret_key": "demo_secret",
-            "person_id": "demo_person",
-            "password": "demo_password",
-        },
-    )
-    print(f"   Result: {login_result[0]['text']}")
-    print()
-
-    # Get account info
-    print("3. Account Info:")
+    # Get account info (auto-connects using environment variables)
+    print("2. Account Info:")
     account_result = await handle_call_tool("get_account_info", {})
     print(f"   Result: {account_result[0]['text']}")
     print()
 
     # Search contracts
-    print("4. Search Contracts:")
+    print("3. Search Contracts:")
     search_result = await handle_call_tool(
         "search_contracts", {"keyword": "台積電"}
     )
@@ -46,7 +32,7 @@ async def main():
     print()
 
     # Get market snapshots
-    print("5. Market Snapshots:")
+    print("4. Market Snapshots:")
     snapshot_result = await handle_call_tool(
         "get_snapshots", {"contracts": ["2330", "2317"]}
     )
@@ -54,7 +40,7 @@ async def main():
     print()
 
     # Place order
-    print("6. Place Order:")
+    print("5. Place Order:")
     order_result = await handle_call_tool(
         "place_order",
         {
@@ -68,7 +54,7 @@ async def main():
     print()
 
     # Get positions
-    print("7. Get Positions:")
+    print("6. Get Positions:")
     position_result = await handle_call_tool("get_positions", {})
     print(f"   Result: {position_result[0]['text']}")
     print()
