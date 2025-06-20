@@ -15,7 +15,7 @@ async def get_snapshots(arguments: dict[str, Any]) -> list[Any]:
     try:
         if not auth_manager.is_connected():
             return format_error_response(
-                Exception("Not logged in. Please login first.")
+                Exception("Not connected. Please set SHIOAJI_API_KEY and SHIOAJI_SECRET_KEY environment variables.")
             )
 
         # Get contract codes
@@ -66,7 +66,7 @@ async def get_kbars(arguments: dict[str, Any]) -> list[Any]:
     try:
         if not auth_manager.is_connected():
             return format_error_response(
-                Exception("Not logged in. Please login first.")
+                Exception("Not connected. Please set SHIOAJI_API_KEY and SHIOAJI_SECRET_KEY environment variables.")
             )
 
         # Get parameters

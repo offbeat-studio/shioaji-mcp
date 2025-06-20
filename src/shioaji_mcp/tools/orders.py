@@ -14,7 +14,7 @@ async def place_order(arguments: dict[str, Any]) -> list[Any]:
     try:
         if not auth_manager.is_connected():
             return format_error_response(
-                Exception("Not logged in. Please login first.")
+                Exception("Not connected. Please set SHIOAJI_API_KEY and SHIOAJI_SECRET_KEY environment variables.")
             )
 
         # Get order parameters
@@ -78,23 +78,43 @@ async def cancel_order(arguments: dict[str, Any]) -> list[Any]:
     try:
         if not auth_manager.is_connected():
             return format_error_response(
-                Exception("Not logged in. Please login first.")
+                Exception("Not connected. Please set SHIOAJI_API_KEY and SHIOAJI_SECRET_KEY environment variables.")
             )
 
         order_id = arguments.get("order_id")
         if not order_id:
             return format_error_response(Exception("Order ID is required"))
 
-        # Mock order cancellation
-        result = {
-            "order_id": order_id,
-            "status": "Cancelled",
-            "timestamp": "2024-01-01T10:05:00",
-        }
+        api = auth_manager.get_api()
+        
+        try:
+            # Get order by ID and cancel it
+            orders = api.list_orders()
+            target_order = None
+            for order in orders:
+                if order.id == order_id:
+                    target_order = order
+                    break
+            
+            if not target_order:
+                return format_error_response(Exception(f"Order {order_id} not found"))
+            
+            # Cancel the order
+            cancel_result = api.cancel_order(target_order)
+            
+            result = {
+                "order_id": order_id,
+                "status": "Cancelled",
+                "timestamp": cancel_result.order_datetime.isoformat() if hasattr(cancel_result, 'order_datetime') and cancel_result.order_datetime else None,
+            }
 
-        return format_success_response(
-            result, f"Order {order_id} cancelled successfully"
-        )
+            return format_success_response(
+                result, f"Order {order_id} cancelled successfully"
+            )
+            
+        except Exception as e:
+            logger.error(f"Failed to cancel order: {e}")
+            return format_error_response(e)
 
     except Exception as e:
         logger.error(f"Cancel order error: {e}")
@@ -106,34 +126,35 @@ async def list_orders(arguments: dict[str, Any]) -> list[Any]:
     try:
         if not auth_manager.is_connected():
             return format_error_response(
-                Exception("Not logged in. Please login first.")
+                Exception("Not connected. Please set SHIOAJI_API_KEY and SHIOAJI_SECRET_KEY environment variables.")
             )
 
-        # Mock order list
-        mock_orders = [
-            {
-                "order_id": "ORD12345",
-                "contract": "2330",
-                "action": "Buy",
-                "quantity": 1000,
-                "price": 500.0,
-                "status": "Filled",
-                "timestamp": "2024-01-01T09:30:00",
-            },
-            {
-                "order_id": "ORD12346",
-                "contract": "2317",
-                "action": "Sell",
-                "quantity": 500,
-                "price": 100.0,
-                "status": "Partial",
-                "timestamp": "2024-01-01T10:00:00",
-            },
-        ]
+        api = auth_manager.get_api()
+        
+        try:
+            # Get real orders from API
+            orders = api.list_orders()
+            
+            order_list = []
+            for order in orders:
+                order_data = {
+                    "order_id": order.id,
+                    "contract": order.contract.code if hasattr(order.contract, 'code') else str(order.contract),
+                    "action": order.action.value if hasattr(order.action, 'value') else str(order.action),
+                    "quantity": order.quantity,
+                    "price": order.price,
+                    "status": order.status.value if hasattr(order.status, 'value') else str(order.status),
+                    "timestamp": order.order_datetime.isoformat() if hasattr(order, 'order_datetime') and order.order_datetime else None,
+                }
+                order_list.append(order_data)
 
-        return format_success_response(
-            mock_orders, f"Retrieved {len(mock_orders)} orders"
-        )
+            return format_success_response(
+                order_list, f"Retrieved {len(order_list)} orders"
+            )
+            
+        except Exception as e:
+            logger.error(f"Failed to list orders: {e}")
+            return format_error_response(e)
 
     except Exception as e:
         logger.error(f"List orders error: {e}")

@@ -14,7 +14,7 @@ async def search_contracts(arguments: dict[str, Any]) -> list[Any]:
     try:
         if not auth_manager.is_connected():
             return format_error_response(
-                Exception("Not logged in. Please login first.")
+                Exception("Not connected. Please set SHIOAJI_API_KEY and SHIOAJI_SECRET_KEY environment variables.")
             )
 
         # Get search parameters
