@@ -1,0 +1,22 @@
+Shioaji MCP Server
+Copyright (c) 2024 Shioaji MCP Server Contributors
+
+This software contains code that interfaces with:
+- Shioaji Python SDK (by SinoPac Securities)
+- Model Context Protocol (MCP) framework
+
+Third-party dependencies and their licenses:
+- mcp: Apache 2.0 / MIT License
+- pydantic: MIT License  
+- python-dotenv: BSD License
+- shioaji: Proprietary (SinoPac Securities)
+
+DISCLAIMER:
+This software is provided "as is" without warranty of any kind.
+Users are responsible for:
+- Obtaining proper API credentials from SinoPac Securities
+- Complying with all applicable financial regulations
+- Understanding trading risks and making informed decisions
+- Any losses or damages resulting from the use of this software
+
+This software is not affiliated with or endorsed by SinoPac Securities.

@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Shioaji MCP Server - Convert Shioaji Python package to MCP server"
 readme = "README.md"
 requires-python = ">=3.10,<3.13"
-authors = [{name = "Your Name", email = "your.email@example.com"}]
+authors = [{name = "Shioaji MCP Contributors", email = "contributors@example.com"}]
 license = {text = "MIT"}
 keywords = ["mcp", "shioaji", "trading", "api"]
 classifiers = [
