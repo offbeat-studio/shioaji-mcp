@@ -213,11 +213,6 @@ async def handle_get_account_info() -> list[Any]:
 async def main():
     """Main entry point for the MCP server."""
     logger.info("Starting Shioaji MCP Server")
-    
-    # Log environment variables for debugging
-    import os
-    logger.info(f"Environment check - API key present: {bool(os.getenv('SHIOAJI_API_KEY'))}")
-    logger.info(f"Environment check - Secret key present: {bool(os.getenv('SHIOAJI_SECRET_KEY'))}")
 
     async with stdio_server() as (read_stream, write_stream):
         await server.run(
