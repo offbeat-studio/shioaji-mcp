@@ -20,20 +20,43 @@ async def get_positions(arguments: dict[str, Any]) -> list[Any]:
         api = auth_manager.get_api()
         
         try:
-            # Get real positions from API
-            positions = api.list_positions()
+            from ..utils.shioaji_wrapper import get_shioaji
+            sj = get_shioaji()
+            
+            # Get positions in shares instead of lots
+            positions = api.list_positions(api.stock_account, unit=sj.constant.Unit.Share)
+            
+            if not positions:
+                return format_success_response([], "No positions found")
             
             position_list = []
-            for position in positions:
+            for i, position in enumerate(positions):
                 position_data = {
-                    "contract": position.contract.code if hasattr(position.contract, 'code') else str(position.contract),
-                    "name": position.contract.name if hasattr(position.contract, 'name') else "",
-                    "quantity": position.quantity,
-                    "avg_price": position.price,
-                    "current_price": getattr(position, 'last_price', 0.0),
-                    "unrealized_pnl": getattr(position, 'pnl', 0.0),
-                    "realized_pnl": getattr(position, 'realized_pnl', 0.0),
+                    "index": i,
+                    "type": type(position).__name__,
+                    "raw_data": str(position)[:200],
                 }
+                
+                # Extract position attributes
+                for attr in ['code', 'symbol', 'quantity', 'price', 'pnl', 'direction', 'account', 'yd_quantity']:
+                    if hasattr(position, attr):
+                        value = getattr(position, attr)
+                        if attr in ['quantity', 'yd_quantity'] and isinstance(value, (int, float)):
+                            position_data[f'{attr}_shares'] = value
+                            position_data[f'{attr}_lots'] = value // 1000
+                            position_data[attr] = value
+                        else:
+                            position_data[attr] = str(value) if not isinstance(value, (int, float, bool)) else value
+                
+                # Calculate actual holding
+                current_qty = position_data.get('quantity', 0)
+                yd_qty = position_data.get('yd_quantity', 0)
+                actual_holding = max(current_qty, yd_qty)
+                
+                position_data['actual_holding'] = actual_holding
+                position_data['holding_lots'] = actual_holding // 1000
+                position_data['holding_odd_shares'] = actual_holding % 1000
+                        
                 position_list.append(position_data)
 
             return format_success_response(
@@ -60,15 +83,11 @@ async def get_account_balance(arguments: dict[str, Any]) -> list[Any]:
         api = auth_manager.get_api()
         
         try:
-            # Get real account balance from API
             accounts = api.list_accounts()
             if not accounts:
                 return format_error_response(Exception("No accounts found"))
             
-            # Use the first account
             account = accounts[0]
-            
-            # Get account balance
             balance = api.account_balance()
             
             balance_data = {
