@@ -20,6 +20,10 @@ A Model Context Protocol (MCP) server that provides access to Shioaji trading AP
 - `get_positions` - Get current positions and P&L
 - `get_account_balance` - Get account balance and margin information
 
+### Service Terms & Compliance
+- `check_terms_status` - Check service terms signing status and API testing completion
+- `run_api_test` - Run API test for service terms compliance (login and order tests)
+
 ## Installation
 
 ### From PyPI (Recommended)

@@ -17,6 +17,7 @@ from .tools.contracts import search_contracts
 from .tools.market_data import get_kbars, get_snapshots
 from .tools.orders import cancel_order, list_orders, place_order
 from .tools.positions import get_account_balance, get_positions
+from .tools.terms import check_terms_status, run_api_test
 from .utils.auth import auth_manager
 from .utils.formatters import format_error_response, format_success_response
 
@@ -151,6 +152,22 @@ async def handle_list_tools() -> list[Tool]:
                 "properties": {},
             },
         ),
+        Tool(
+            name="check_terms_status",
+            description="Check service terms signing status and API testing completion",
+            inputSchema={
+                "type": "object",
+                "properties": {},
+            },
+        ),
+        Tool(
+            name="run_api_test",
+            description="Run API test for service terms compliance (login and order tests)",
+            inputSchema={
+                "type": "object",
+                "properties": {},
+            },
+        ),
     ]
 
 
@@ -175,6 +192,10 @@ async def handle_call_tool(name: str, arguments: dict[str, Any] | None) -> list[
         return await get_positions(arguments or {})
     elif name == "get_account_balance":
         return await get_account_balance(arguments or {})
+    elif name == "check_terms_status":
+        return await check_terms_status(arguments or {})
+    elif name == "run_api_test":
+        return await run_api_test(arguments or {})
     else:
         raise ValueError(f"Unknown tool: {name}")
 
