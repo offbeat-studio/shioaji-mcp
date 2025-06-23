@@ -1,0 +1,41 @@
+name: Run Tests
+
+on:
+  pull_request:
+    branches: [ "main", "dev" ]
+  push:
+    branches: [ "main", "dev" ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.10', '3.11', '3.12']
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install uv
+        run: |
+          pip install uv
+
+      - name: Install dependencies
+        run: |
+          uv pip install --system .
+          uv pip install --system pytest pytest-asyncio pytest-cov
+
+      - name: Run tests
+        run: |
+          uv run pytest --cov=src/shioaji_mcp
+
+      - name: Check code quality
+        run: |
+          uv pip install --system ruff
+          uv run ruff check src/ tests/

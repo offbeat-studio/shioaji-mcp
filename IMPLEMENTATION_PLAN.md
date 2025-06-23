@@ -127,11 +127,22 @@ shioaji-mcp/
     - uvx-compatible distribution
     - Local testing with wheel files
 
+### Phase 7: Container Registry & CI/CD ✅ COMPLETED
+13. **GitHub Container Registry setup** ✅
+    - Docker image published to GHCR
+    - Multiple tag strategy (latest, version-specific, dev)
+    - Documentation for users and maintainers
+
+14. **CI/CD pipeline** ✅
+    - GitHub Actions workflow for automated builds
+    - Automatic publishing to GHCR
+    - Build triggers for main branch, dev branch, and version tags
+
 ## 🎉 CURRENT STATUS: PRODUCTION READY
 
 **Implemented Tools (11 total):**
 - ✅ shioaji_login, shioaji_logout, get_account_info
-- ✅ search_contracts, get_snapshots, get_kbars  
+- ✅ search_contracts, get_snapshots, get_kbars
 - ✅ place_order, cancel_order, list_orders
 - ✅ get_positions, get_account_balance
 
@@ -142,6 +153,9 @@ shioaji-mcp/
 - Comprehensive testing (20 tests passing)
 - Production-ready MCP server
 - Successfully tested with Taiwan Semiconductor (2330) snapshot
+- Automated CI/CD pipeline with GitHub Actions
+- Docker image distribution via GitHub Container Registry
+- Multi-tag versioning strategy (latest, version-specific, dev)
 
 ## Key Technical Considerations
 

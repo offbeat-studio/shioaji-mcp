@@ -29,11 +29,36 @@ A Model Context Protocol (MCP) server that provides access to Shioaji trading AP
 2. **API Credentials**: Apply for and obtain API Key and Secret Key
 3. **Service Terms**: Complete document signing and API testing (see [docs/SERVICE_TERMS.md](docs/SERVICE_TERMS.md))
 
+For detailed information about using the Docker images from GitHub Container Registry, see [docs/CONTAINER_REGISTRY.md](docs/CONTAINER_REGISTRY.md).
+
 ## Installation & Usage
 
-### Docker (Recommended)
+### Using Pre-built Docker Image (Recommended)
 
-Due to Shioaji dependency issues on macOS, Docker is recommended:
+The easiest way to use this MCP server is with our pre-built Docker image from GitHub Container Registry:
+
+```bash
+# Pull the latest stable image
+docker pull ghcr.io/musingfox/shioaji-mcp:latest
+
+# Run MCP server
+docker run --rm -i --platform=linux/amd64 \
+  -e SHIOAJI_API_KEY=your_api_key \
+  -e SHIOAJI_SECRET_KEY=your_secret_key \
+  ghcr.io/musingfox/shioaji-mcp:latest
+```
+
+#### Available Tags
+
+- `latest` - Latest stable release from the main branch
+- `vX.Y.Z` (e.g., `v0.1.0`) - Specific version releases
+- `dev` - Latest development build (may contain experimental features)
+
+For production use, we recommend using a specific version tag.
+
+### Building Docker Image Locally
+
+If you prefer to build the image locally:
 
 ```bash
 # Build Docker image
@@ -59,12 +84,44 @@ Add the following configuration to your MCP client:
         "run", "--rm", "-i", "--platform=linux/amd64",
         "-e", "SHIOAJI_API_KEY=your_api_key",
         "-e", "SHIOAJI_SECRET_KEY=your_secret_key",
-        "shioaji-mcp"
+        "ghcr.io/musingfox/shioaji-mcp:latest"
       ]
     }
   }
 }
 ```
+
+For development or testing, you can use the `dev` tag:
+
+```json
+"ghcr.io/musingfox/shioaji-mcp:dev"
+```
+
+### Python Client Example
+
+We provide a Python client example that demonstrates how to use the Shioaji MCP server programmatically:
+
+```bash
+# Install the MCP client library
+pip install mcp-client
+
+# Set your API credentials
+export SHIOAJI_API_KEY=your_api_key
+export SHIOAJI_SECRET_KEY=your_secret_key
+
+# Run the example
+./examples/python_client.py
+```
+
+The example demonstrates:
+- Connecting to the Shioaji MCP server
+- Getting account information
+- Searching for contracts
+- Getting real-time market data
+- Getting historical K-bar data
+- Retrieving positions and account balance
+
+See [examples/python_client.py](examples/python_client.py) for the full code.
 
 ### Local Development (Linux/WSL)
 
@@ -164,6 +221,20 @@ src/shioaji_mcp/
 
 ## Troubleshooting
 
+### Docker Setup Test
+
+We provide a script to test your Docker setup for compatibility with the Shioaji MCP server:
+
+```bash
+# Make the script executable
+chmod +x scripts/test_docker_setup.sh
+
+# Run the test script
+./scripts/test_docker_setup.sh
+```
+
+This script checks for Docker installation, daemon status, permissions, platform support, and basic functionality.
+
 ### macOS Dependency Issues
 ```bash
 # Use Docker to resolve
@@ -188,6 +259,8 @@ docker run --rm -i --platform=linux/amd64 \
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Contributing
+
+We welcome contributions to improve the Shioaji MCP server! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines on how to contribute to this project.
 
 1. Fork this repository
 2. Create a feature branch

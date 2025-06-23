@@ -6,7 +6,7 @@
         "run", "--rm", "-i", "--platform=linux/amd64",
         "-e", "SHIOAJI_API_KEY=your_api_key",
         "-e", "SHIOAJI_SECRET_KEY=your_secret_key",
-        "shioaji-mcp"
+        "ghcr.io/musingfox/shioaji-mcp:latest"
       ]
     }
   }

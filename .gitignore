@@ -7,12 +7,21 @@ build/
 dist/
 wheels/
 *.egg-info
+*.so
+.pytest_cache/
+.coverage
+htmlcov/
 
 # Virtual environments
 .venv
+venv/
+env/
+ENV/
 
 # Environment files
 .env
+.env.*
+!.env.example
 
 # Shioaji log file
 shioaji.log
@@ -22,3 +31,10 @@ uv.lock
 
 # Git directory (should never be tracked)
 .git/
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
