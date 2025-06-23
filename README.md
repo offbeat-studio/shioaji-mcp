@@ -5,8 +5,7 @@ A Model Context Protocol (MCP) server that provides access to Shioaji trading AP
 ## Features
 
 ### Authentication & Connection
-- Automatic authentication using environment variables
-- `get_account_info` - Get account information
+- `get_account_info` - Get account information and connection status
 
 ### Market Data
 - `search_contracts` - Search for trading contracts by keyword, exchange, or category
@@ -24,157 +23,174 @@ A Model Context Protocol (MCP) server that provides access to Shioaji trading AP
 - `check_terms_status` - Check service terms signing status and API testing completion
 - `run_api_test` - Run API test for service terms compliance (login and order tests)
 
-## Installation
+## Prerequisites
 
-### From PyPI (Recommended)
+1. **SinoPac Securities Account**: You need a [SinoPac Securities account](https://www.sinotrade.com.tw/openact)
+2. **API Credentials**: Apply for and obtain API Key and Secret Key
+3. **Service Terms**: Complete document signing and API testing (see [docs/SERVICE_TERMS.md](docs/SERVICE_TERMS.md))
+
+## Installation & Usage
+
+### Docker (Recommended)
+
+Due to Shioaji dependency issues on macOS, Docker is recommended:
 
 ```bash
-# Install directly with uvx (no local setup needed)
-uvx shioaji-mcp
+# Build Docker image
+docker build -t shioaji-mcp .
+
+# Run MCP server
+docker run --rm -i --platform=linux/amd64 \
+  -e SHIOAJI_API_KEY=your_api_key \
+  -e SHIOAJI_SECRET_KEY=your_secret_key \
+  shioaji-mcp
 ```
 
-### From Source
+### MCP Client Configuration
+
+Add the following configuration to your MCP client:
+
+```json
+{
+  "mcpServers": {
+    "shioaji": {
+      "command": "docker",
+      "args": [
+        "run", "--rm", "-i", "--platform=linux/amd64",
+        "-e", "SHIOAJI_API_KEY=your_api_key",
+        "-e", "SHIOAJI_SECRET_KEY=your_secret_key",
+        "shioaji-mcp"
+      ]
+    }
+  }
+}
+```
+
+### Local Development (Linux/WSL)
 
 ```bash
-# Clone the repository
+# Clone repository
 git clone <repository-url>
 cd shioaji-mcp
 
 # Install dependencies
 uv sync
 
-# Install in development mode
-uv pip install -e .
+# Set environment variables
+export SHIOAJI_API_KEY=your_api_key
+export SHIOAJI_SECRET_KEY=your_secret_key
+
+# Run MCP server
+uv run python -m shioaji_mcp.server
 ```
 
-## Configuration
+## Development Guide
 
-Create a `.env` file with your Shioaji credentials:
-
-```env
-SHIOAJI_API_KEY=your_api_key_here
-SHIOAJI_SECRET_KEY=your_secret_key_here
-```
-
-**Note**: You need to obtain API credentials from your broker (Sinopac Securities). This MCP server uses **real Shioaji API** - no mock data.
-
-## Usage
-
-### As MCP Server
-
-Add to your MCP client configuration:
-
-```json
-{
-  "mcpServers": {
-    "shioaji-mcp": {
-      "command": "uvx",
-      "args": ["shioaji-mcp"],
-      "env": {
-        "SHIOAJI_API_KEY": "your_api_key_here",
-        "SHIOAJI_SECRET_KEY": "your_secret_key_here"
-      }
-    }
-  }
-}
-```
-
-### Direct Usage
-
-```python
-# Set environment variables first
-import os
-os.environ["SHIOAJI_API_KEY"] = "your_api_key"
-os.environ["SHIOAJI_SECRET_KEY"] = "your_secret_key"
-
-from shioaji_mcp.server import handle_call_tool
-
-# Get account info (auto-connects)
-result = await handle_call_tool("get_account_info", {})
-
-# Search contracts
-contracts = await handle_call_tool("search_contracts", {
-    "keyword": "台積電"
-})
-
-# Get real market data
-snapshots = await handle_call_tool("get_snapshots", {
-    "contracts": ["2330", "2317"]
-})
-
-# Place order
-order = await handle_call_tool("place_order", {
-    "contract": "2330",
-    "action": "Buy", 
-    "quantity": 1000,
-    "price": 500.0
-})
-```
-
-## Development
-
-### Running Tests
+### Environment Setup
 
 ```bash
-# Run all tests
-uv run --extra test pytest
+# Install development dependencies
+uv sync --extra test --extra lint
 
-# Run with coverage
-uv run --extra test pytest --cov=src/shioaji_mcp
+# Set environment variables
+cp .env.example .env
+# Edit .env and fill in your API credentials
 ```
 
-### Linting
+### Testing
 
 ```bash
-# Run linter
-uv run --extra lint ruff check src/ tests/
+# Run tests
+uv run pytest
+
+# Test coverage
+uv run pytest --cov=src/shioaji_mcp
+```
+
+### Code Quality
+
+```bash
+# Check code style
+uv run ruff check src/ tests/
 
 # Format code
-uv run --extra lint black src/ tests/
-
-# Sort imports
-uv run --extra lint isort src/ tests/
+uv run ruff format src/ tests/
 ```
 
-### Example Usage
+### Docker Development
 
 ```bash
-# Run the real usage example (requires valid credentials)
-uv run python examples/real_usage.py
+# Build development Docker image
+docker build -t shioaji-mcp-dev .
 
-# Run the basic usage example
-uv run python examples/basic_usage.py
+# Test Docker container
+docker run --rm -i --platform=linux/amd64 \
+  -e SHIOAJI_API_KEY=test_key \
+  -e SHIOAJI_SECRET_KEY=test_secret \
+  shioaji-mcp-dev
 ```
 
 ## Architecture
 
-- **Server**: Main MCP server implementation with tool registration
-- **Tools**: Modular tool implementations for different functionality areas
-- **Utils**: Authentication management and data formatting utilities
-- **Real API**: Uses actual Shioaji API for all trading operations
-
-## Compatibility
-
-- Python 3.10-3.12
-- Shioaji API (real trading API)
-- MCP Protocol 1.0+
+```
+src/shioaji_mcp/
+├── server.py          # MCP server main program
+├── tools/             # Tool modules
+│   ├── contracts.py   # Contract search
+│   ├── market_data.py # Market data
+│   ├── orders.py      # Order operations
+│   ├── positions.py   # Position queries
+│   └── terms.py       # Service terms
+└── utils/             # Utilities
+    ├── auth.py        # Authentication management
+    ├── formatters.py  # Data formatting
+    └── shioaji_wrapper.py # Shioaji wrapper
+```
 
 ## Important Notes
 
-⚠️ **This MCP server connects to the real Shioaji trading API**
-- All operations use real market data
-- Trading operations will execute real orders
-- Make sure you understand the risks before placing orders
-- Test with small amounts first
+⚠️ **Real Trading API**
+- This MCP server connects to the real SinoPac Securities API
+- All trading operations will execute real orders
+- Make sure you understand the risks before trading
+- Recommend testing with small amounts first
+- This software is provided "as is" without warranty of any kind
+- Users are responsible for their own trading decisions and compliance with regulations
+
+⚠️ **Compatibility**
+- Python 3.10-3.12
+- Recommended to run in Linux environment or Docker
+- macOS users should use Docker
+
+## Troubleshooting
+
+### macOS Dependency Issues
+```bash
+# Use Docker to resolve
+docker run --platform=linux/amd64 ...
+```
+
+### API Connection Issues
+```bash
+# Check environment variables
+echo $SHIOAJI_API_KEY
+echo $SHIOAJI_SECRET_KEY
+
+# Check if API credentials are valid
+docker run --rm -i --platform=linux/amd64 \
+  -e SHIOAJI_API_KEY=your_key \
+  -e SHIOAJI_SECRET_KEY=your_secret \
+  shioaji-mcp python -c "from shioaji_mcp.utils.auth import auth_manager; print(auth_manager.is_connected())"
+```
 
 ## License
 
-[Add your license here]
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Contributing
 
-1. Fork the repository
+1. Fork this repository
 2. Create a feature branch
 3. Make your changes with tests
-4. Run linting and tests
-5. Submit a pull request
+4. Run code checks and tests
+5. Submit a Pull Request
