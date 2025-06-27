@@ -4,8 +4,8 @@
       "command": "docker",
       "args": [
         "run", "--rm", "-i", "--platform=linux/amd64",
-        "-e", "SHIOAJI_API_KEY=your_api_key",
-        "-e", "SHIOAJI_SECRET_KEY=your_secret_key",
+        "-e", "SHIOAJI_API_KEY=your_api_key_here",
+        "-e", "SHIOAJI_SECRET_KEY=your_secret_key_here",
         "ghcr.io/musingfox/shioaji-mcp:latest"
       ]
     }

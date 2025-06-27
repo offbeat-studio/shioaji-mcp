@@ -22,8 +22,10 @@ RUN pip install --no-cache-dir uv && \
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1
 
-# Create non-root user
-RUN useradd -r -s /bin/false appuser
+# Create non-root user and set up permissions
+RUN useradd -r -s /bin/false appuser && \
+    chown -R appuser:appuser /app && \
+    chmod -R 755 /app
 USER appuser
 
 # MCP stdio mode

@@ -14,10 +14,6 @@ logger = logging.getLogger(__name__)
 # Load environment variables from .env file if it exists
 load_dotenv()
 
-# Debug: Log environment variables (without exposing secrets)
-logger.info(f"SHIOAJI_API_KEY present: {bool(os.getenv('SHIOAJI_API_KEY'))}")
-logger.info(f"SHIOAJI_SECRET_KEY present: {bool(os.getenv('SHIOAJI_SECRET_KEY'))}")
-
 
 class ShioajiAuth:
     """Shioaji authentication manager."""
@@ -36,12 +32,7 @@ class ShioajiAuth:
             api_key = os.getenv("SHIOAJI_API_KEY")
             secret_key = os.getenv("SHIOAJI_SECRET_KEY")
             
-            logger.info(f"Attempting connection with API key: {api_key[:10] + '...' if api_key else 'None'}")
-            logger.info(f"Secret key present: {bool(secret_key)}")
-
             if not all([api_key, secret_key]):
-                available_env = {k: v for k, v in os.environ.items() if 'SHIOAJI' in k}
-                logger.error(f"Available SHIOAJI env vars: {list(available_env.keys())}")
                 raise ValueError("Missing SHIOAJI_API_KEY or SHIOAJI_SECRET_KEY environment variables")
 
             # Test Shioaji import before attempting connection
