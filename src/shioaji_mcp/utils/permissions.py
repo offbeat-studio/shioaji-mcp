@@ -1,7 +1,7 @@
 """Permission management for Shioaji MCP server."""
 
-import os
 import logging
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -15,13 +15,13 @@ def is_trading_enabled() -> bool:
     """
     # Get the environment variable (case-insensitive)
     trading_enabled = os.getenv('SHIOAJI_TRADING_ENABLED', 'false').lower()
-    
+
     # Only allow trading if explicitly set to 'true'
     enabled = trading_enabled in ['true', '1', 'yes', 'on']
-    
+
     if not enabled:
         logger.info("Trading operations are disabled. Set SHIOAJI_TRADING_ENABLED=true to enable.")
-    
+
     return enabled
 
 
@@ -42,5 +42,5 @@ def check_trading_permission(operation_name: str) -> tuple[bool, str]:
         )
         logger.warning(f"Blocked trading operation: {operation_name}")
         return False, error_msg
-    
+
     return True, ""

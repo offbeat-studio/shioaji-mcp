@@ -24,25 +24,25 @@ async def search_contracts(arguments: dict[str, Any]) -> list[Any]:
 
         api = auth_manager.get_api()
         contracts = []
-        
+
         # Search in different contract types
         contract_sources = [
             ("Stock", "TSE", api.Contracts.Stocks),
         ]
-        
+
         for cat, exch, source in contract_sources:
             if category and category.lower() != cat.lower():
                 continue
             if exchange and exchange.upper() != exch:
                 continue
-                
+
             try:
                 for code, contract in source.items():
                     if keyword:
-                        if (keyword.lower() not in contract.name.lower() and 
+                        if (keyword.lower() not in contract.name.lower() and
                             keyword not in code):
                             continue
-                    
+
                     contracts.append({
                         "code": code,
                         "symbol": getattr(contract, "symbol", code),
@@ -51,14 +51,14 @@ async def search_contracts(arguments: dict[str, Any]) -> list[Any]:
                         "exchange": exch,
                         "currency": getattr(contract, "currency", "TWD")
                     })
-                    
+
                     # Limit results
                     if len(contracts) >= 50:
                         break
             except Exception as e:
                 logger.warning(f"Error searching {cat} contracts: {e}")
                 continue
-                
+
             if len(contracts) >= 50:
                 break
 

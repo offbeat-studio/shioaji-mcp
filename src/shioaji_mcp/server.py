@@ -8,10 +8,9 @@ from mcp.server import Server
 from mcp.server.models import InitializationOptions
 from mcp.server.stdio import stdio_server
 from mcp.types import (
-    Tool,
     ServerCapabilities,
+    Tool,
 )
-
 
 from .tools.contracts import search_contracts
 from .tools.market_data import get_kbars, get_snapshots

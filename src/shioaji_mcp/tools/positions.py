@@ -18,17 +18,17 @@ async def get_positions(arguments: dict[str, Any]) -> list[Any]:
             )
 
         api = auth_manager.get_api()
-        
+
         try:
             from ..utils.shioaji_wrapper import get_shioaji
             sj = get_shioaji()
-            
+
             # Get positions in shares instead of lots
             positions = api.list_positions(api.stock_account, unit=sj.constant.Unit.Share)
-            
+
             if not positions:
                 return format_success_response([], "No positions found")
-            
+
             position_list = []
             for i, position in enumerate(positions):
                 position_data = {
@@ -36,7 +36,7 @@ async def get_positions(arguments: dict[str, Any]) -> list[Any]:
                     "type": type(position).__name__,
                     "raw_data": str(position)[:200],
                 }
-                
+
                 # Extract position attributes
                 for attr in ['code', 'symbol', 'quantity', 'price', 'pnl', 'direction', 'account', 'yd_quantity']:
                     if hasattr(position, attr):
@@ -47,22 +47,22 @@ async def get_positions(arguments: dict[str, Any]) -> list[Any]:
                             position_data[attr] = value
                         else:
                             position_data[attr] = str(value) if not isinstance(value, (int, float, bool)) else value
-                
+
                 # Calculate actual holding
                 current_qty = position_data.get('quantity', 0)
                 yd_qty = position_data.get('yd_quantity', 0)
                 actual_holding = max(current_qty, yd_qty)
-                
+
                 position_data['actual_holding'] = actual_holding
                 position_data['holding_lots'] = actual_holding // 1000
                 position_data['holding_odd_shares'] = actual_holding % 1000
-                        
+
                 position_list.append(position_data)
 
             return format_success_response(
                 position_list, f"Retrieved {len(position_list)} positions"
             )
-            
+
         except Exception as e:
             logger.error(f"Failed to get positions: {e}")
             return format_error_response(e)
@@ -81,15 +81,15 @@ async def get_account_balance(arguments: dict[str, Any]) -> list[Any]:
             )
 
         api = auth_manager.get_api()
-        
+
         try:
             accounts = api.list_accounts()
             if not accounts:
                 return format_error_response(Exception("No accounts found"))
-            
+
             account = accounts[0]
             balance = api.account_balance()
-            
+
             balance_data = {
                 "account_id": account.account_id,
                 "currency": "TWD",
@@ -102,7 +102,7 @@ async def get_account_balance(arguments: dict[str, Any]) -> list[Any]:
             }
 
             return format_success_response(balance_data, "Account balance retrieved")
-            
+
         except Exception as e:
             logger.error(f"Failed to get account balance: {e}")
             return format_error_response(e)

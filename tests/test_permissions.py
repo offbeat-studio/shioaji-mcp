@@ -1,10 +1,12 @@
 """Tests for trading permissions."""
 
 import os
-import pytest
 from unittest.mock import patch
 
-from src.shioaji_mcp.utils.permissions import is_trading_enabled, check_trading_permission
+from src.shioaji_mcp.utils.permissions import (
+    check_trading_permission,
+    is_trading_enabled,
+)
 
 
 class TestTradingPermissions:

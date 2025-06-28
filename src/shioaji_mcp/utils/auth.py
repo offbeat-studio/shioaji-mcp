@@ -27,11 +27,11 @@ class ShioajiAuth:
         """Auto-connect using environment variables."""
         if self._is_connected:
             return
-            
+
         try:
             api_key = os.getenv("SHIOAJI_API_KEY")
             secret_key = os.getenv("SHIOAJI_SECRET_KEY")
-            
+
             if not all([api_key, secret_key]):
                 raise ValueError("Missing SHIOAJI_API_KEY or SHIOAJI_SECRET_KEY environment variables")
 
@@ -43,7 +43,7 @@ class ShioajiAuth:
                 raise RuntimeError(f"Shioaji import failed: {import_error}") from import_error
 
             # Login with API credentials only
-            accounts = self.api.login(
+            self.api.login(
                 api_key=api_key,
                 secret_key=secret_key,
             )
@@ -55,7 +55,7 @@ class ShioajiAuth:
             error_msg = str(e)
             if "expired" in error_msg.lower():
                 logger.error(f"API key expired: {e}")
-                raise RuntimeError(f"Shioaji API key has expired. Please get a new API key from your broker: {e}")
+                raise RuntimeError(f"Shioaji API key has expired. Please get a new API key from your broker: {e}") from e
             else:
                 logger.error(f"Auto-connect failed: {e}")
             self._is_connected = False

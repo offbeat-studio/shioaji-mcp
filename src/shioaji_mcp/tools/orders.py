@@ -17,7 +17,7 @@ async def place_order(arguments: dict[str, Any]) -> list[Any]:
         is_allowed, error_msg = check_trading_permission("place_order")
         if not is_allowed:
             return format_error_response(Exception(error_msg))
-        
+
         if not auth_manager.is_connected():
             return format_error_response(
                 Exception("Not connected. Please set SHIOAJI_API_KEY and SHIOAJI_SECRET_KEY environment variables.")
@@ -36,13 +36,13 @@ async def place_order(arguments: dict[str, Any]) -> list[Any]:
             )
 
         api = auth_manager.get_api()
-        
+
         try:
             # Get contract object
             contract = api.Contracts.Stocks[contract_code]
             if not contract:
                 return format_error_response(Exception(f"Contract {contract_code} not found"))
-            
+
             # Create order object
             order = api.Order(
                 price=price or 0,
@@ -51,10 +51,10 @@ async def place_order(arguments: dict[str, Any]) -> list[Any]:
                 price_type=api.constant.StockPriceType.LMT if price else api.constant.StockPriceType.MKT,
                 order_type=getattr(api.constant.OrderType, order_type, api.constant.OrderType.ROD)
             )
-            
+
             # Place order
             trade = api.place_order(contract, order)
-            
+
             result = {
                 "order_id": trade.order.id,
                 "contract": contract_code,
@@ -65,11 +65,11 @@ async def place_order(arguments: dict[str, Any]) -> list[Any]:
                 "status": trade.status.status,
                 "timestamp": trade.order.order_datetime.isoformat() if trade.order.order_datetime else None,
             }
-            
+
             return format_success_response(
                 result, f"Order placed successfully: {result['order_id']}"
             )
-            
+
         except Exception as e:
             logger.error(f"Failed to place order: {e}")
             return format_error_response(e)
@@ -86,7 +86,7 @@ async def cancel_order(arguments: dict[str, Any]) -> list[Any]:
         is_allowed, error_msg = check_trading_permission("cancel_order")
         if not is_allowed:
             return format_error_response(Exception(error_msg))
-        
+
         if not auth_manager.is_connected():
             return format_error_response(
                 Exception("Not connected. Please set SHIOAJI_API_KEY and SHIOAJI_SECRET_KEY environment variables.")
@@ -97,7 +97,7 @@ async def cancel_order(arguments: dict[str, Any]) -> list[Any]:
             return format_error_response(Exception("Order ID is required"))
 
         api = auth_manager.get_api()
-        
+
         try:
             # Get order by ID and cancel it
             orders = api.list_orders()
@@ -106,13 +106,13 @@ async def cancel_order(arguments: dict[str, Any]) -> list[Any]:
                 if order.id == order_id:
                     target_order = order
                     break
-            
+
             if not target_order:
                 return format_error_response(Exception(f"Order {order_id} not found"))
-            
+
             # Cancel the order
             cancel_result = api.cancel_order(target_order)
-            
+
             result = {
                 "order_id": order_id,
                 "status": "Cancelled",
@@ -122,7 +122,7 @@ async def cancel_order(arguments: dict[str, Any]) -> list[Any]:
             return format_success_response(
                 result, f"Order {order_id} cancelled successfully"
             )
-            
+
         except Exception as e:
             logger.error(f"Failed to cancel order: {e}")
             return format_error_response(e)
@@ -141,11 +141,11 @@ async def list_orders(arguments: dict[str, Any]) -> list[Any]:
             )
 
         api = auth_manager.get_api()
-        
+
         try:
             # Get real orders from API
             orders = api.list_orders()
-            
+
             order_list = []
             for order in orders:
                 order_data = {
@@ -162,7 +162,7 @@ async def list_orders(arguments: dict[str, Any]) -> list[Any]:
             return format_success_response(
                 order_list, f"Retrieved {len(order_list)} orders"
             )
-            
+
         except Exception as e:
             logger.error(f"Failed to list orders: {e}")
             return format_error_response(e)

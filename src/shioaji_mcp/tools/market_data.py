@@ -25,17 +25,17 @@ async def get_snapshots(arguments: dict[str, Any]) -> list[Any]:
 
         api = auth_manager.get_api()
         snapshots = []
-        
+
         for contract_code in contracts:
             try:
                 # Get contract object
                 contract = api.Contracts.Stocks[contract_code]
                 if not contract:
                     continue
-                    
+
                 # Get snapshot data
                 snapshot = api.snapshots([contract])[0]
-                
+
                 snapshots.append({
                     "code": contract_code,
                     "name": contract.name,
@@ -76,23 +76,23 @@ async def get_kbars(arguments: dict[str, Any]) -> list[Any]:
             return format_error_response(Exception("Contract code is required"))
 
         api = auth_manager.get_api()
-        
+
         try:
             # Get contract object
             contract = api.Contracts.Stocks[contract_code]
             if not contract:
                 return format_error_response(Exception(f"Contract {contract_code} not found"))
-            
+
             # Get parameters with defaults
             start_date = arguments.get("start_date")
             end_date = arguments.get("end_date")
-            
+
             # Set default date range if not provided
             if not start_date:
                 start_date = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
             if not end_date:
                 end_date = datetime.now().strftime("%Y-%m-%d")
-            
+
             # Get K-bar data
             kbars = api.kbars(
                 contract=contract,
@@ -100,7 +100,7 @@ async def get_kbars(arguments: dict[str, Any]) -> list[Any]:
                 end=end_date,
                 timeout=30000
             )
-            
+
             # Format K-bar data
             formatted_kbars = []
             for kbar in kbars:
@@ -112,11 +112,11 @@ async def get_kbars(arguments: dict[str, Any]) -> list[Any]:
                     "close": kbar.Close,
                     "volume": kbar.Volume,
                 })
-            
+
             return format_success_response(
                 formatted_kbars, f"Retrieved {len(formatted_kbars)} K-bars for {contract_code}"
             )
-            
+
         except Exception as e:
             logger.error(f"Failed to get K-bars for {contract_code}: {e}")
             return format_error_response(e)
