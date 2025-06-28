@@ -1,41 +1,71 @@
-name: Run Tests
+name: Tests
 
 on:
   pull_request:
-    branches: [ "main", "dev" ]
+    branches: [ master ]
   push:
-    branches: [ "main", "dev" ]
+    branches: [ master ]
 
 jobs:
   test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.10', '3.11', '3.12']
+        python-version: ['3.11', '3.12']
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
+    - name: Install uv
+      uses: astral-sh/setup-uv@v3
+      with:
+        version: "latest"
 
-      - name: Install uv
-        run: |
-          pip install uv
+    - name: Set up Python ${{ matrix.python-version }}
+      run: uv python install ${{ matrix.python-version }}
 
-      - name: Install dependencies
-        run: |
-          uv pip install --system .
-          uv pip install --system pytest pytest-asyncio pytest-cov
+    - name: Install dependencies
+      run: |
+        uv sync --all-extras --dev
 
-      - name: Run tests
-        run: |
-          uv run pytest --cov=src/shioaji_mcp
+    - name: Run linting
+      run: |
+        uv run ruff check src/ tests/
+        uv run ruff format --check src/ tests/
 
-      - name: Check code quality
-        run: |
-          uv pip install --system ruff
-          uv run ruff check src/ tests/
+    - name: Run type checking
+      run: |
+        uv run mypy src/
+
+    - name: Run tests
+      run: |
+        uv run pytest tests/ -v --cov=src/shioaji_mcp --cov-report=xml --cov-report=term
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
+
+  security-scan:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+
+    - name: Upload Trivy scan results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v2
+      if: always()
+      with:
+        sarif_file: 'trivy-results.sarif'
