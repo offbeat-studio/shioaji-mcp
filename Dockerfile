@@ -7,10 +7,13 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends gcc g++ && \
     rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
-# Copy and install dependencies
-COPY pyproject.toml uv.lock README.md ./
+# Copy project files
+COPY pyproject.toml ./
+COPY README.md ./
+COPY uv.lock ./
 COPY src/ src/
 
+# Install dependencies
 RUN pip install --no-cache-dir uv && \
     uv pip install --system --no-cache . && \
     pip uninstall -y uv && \
