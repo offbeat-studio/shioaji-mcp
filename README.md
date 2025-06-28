@@ -13,11 +13,13 @@ A Model Context Protocol (MCP) server that provides access to Shioaji trading AP
 - `get_kbars` - Get historical K-bar data for contracts
 
 ### Trading Operations
-- `place_order` - Place buy/sell orders with specified parameters
-- `cancel_order` - Cancel existing orders by order ID
+- `place_order` - Place buy/sell orders with specified parameters (requires permission)
+- `cancel_order` - Cancel existing orders by order ID (requires permission)
 - `list_orders` - List all orders with their status
 - `get_positions` - Get current positions and P&L
 - `get_account_balance` - Get account balance and margin information
+
+**⚠️ Trading Safety**: Trading operations (`place_order`, `cancel_order`) are disabled by default. Set `SHIOAJI_TRADING_ENABLED=true` to enable them.
 
 ### Service Terms & Compliance
 - `check_terms_status` - Check service terms signing status and API testing completion
@@ -41,10 +43,18 @@ The easiest way to use this MCP server is with our pre-built Docker image from G
 # Pull the latest stable image
 docker pull ghcr.io/musingfox/shioaji-mcp:latest
 
-# Run MCP server
+# Run MCP server (read-only mode)
 docker run --rm -i --platform=linux/amd64 \
   -e SHIOAJI_API_KEY=your_api_key \
   -e SHIOAJI_SECRET_KEY=your_secret_key \
+  -e SHIOAJI_TRADING_ENABLED=false \
+  ghcr.io/musingfox/shioaji-mcp:latest
+
+# Run MCP server with trading enabled
+docker run --rm -i --platform=linux/amd64 \
+  -e SHIOAJI_API_KEY=your_api_key \
+  -e SHIOAJI_SECRET_KEY=your_secret_key \
+  -e SHIOAJI_TRADING_ENABLED=true \
   ghcr.io/musingfox/shioaji-mcp:latest
 ```
 
@@ -64,10 +74,11 @@ If you prefer to build the image locally:
 # Build Docker image
 docker build -t shioaji-mcp .
 
-# Run MCP server
+# Run MCP server (read-only mode)
 docker run --rm -i --platform=linux/amd64 \
   -e SHIOAJI_API_KEY=your_api_key \
   -e SHIOAJI_SECRET_KEY=your_secret_key \
+  -e SHIOAJI_TRADING_ENABLED=false \
   shioaji-mcp
 ```
 
@@ -84,11 +95,21 @@ Add the following configuration to your MCP client:
         "run", "--rm", "-i", "--platform=linux/amd64",
         "-e", "SHIOAJI_API_KEY=your_api_key",
         "-e", "SHIOAJI_SECRET_KEY=your_secret_key",
+        "-e", "SHIOAJI_TRADING_ENABLED=false",
         "ghcr.io/musingfox/shioaji-mcp:latest"
       ]
     }
   }
 }
+```
+
+**Trading Permissions**:
+- Set `SHIOAJI_TRADING_ENABLED=false` (default) for read-only mode
+- Set `SHIOAJI_TRADING_ENABLED=true` to enable trading operations
+
+**Example with trading enabled**:
+```json
+"-e", "SHIOAJI_TRADING_ENABLED=true"
 ```
 
 For development or testing, you can use the `dev` tag:

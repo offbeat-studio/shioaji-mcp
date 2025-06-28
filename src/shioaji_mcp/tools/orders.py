@@ -5,6 +5,7 @@ from typing import Any
 
 from ..utils.auth import auth_manager
 from ..utils.formatters import format_error_response, format_success_response
+from ..utils.permissions import check_trading_permission
 
 logger = logging.getLogger(__name__)
 
@@ -12,6 +13,11 @@ logger = logging.getLogger(__name__)
 async def place_order(arguments: dict[str, Any]) -> list[Any]:
     """Place a trading order."""
     try:
+        # Check trading permission first
+        is_allowed, error_msg = check_trading_permission("place_order")
+        if not is_allowed:
+            return format_error_response(Exception(error_msg))
+        
         if not auth_manager.is_connected():
             return format_error_response(
                 Exception("Not connected. Please set SHIOAJI_API_KEY and SHIOAJI_SECRET_KEY environment variables.")
@@ -76,6 +82,11 @@ async def place_order(arguments: dict[str, Any]) -> list[Any]:
 async def cancel_order(arguments: dict[str, Any]) -> list[Any]:
     """Cancel an existing order."""
     try:
+        # Check trading permission first
+        is_allowed, error_msg = check_trading_permission("cancel_order")
+        if not is_allowed:
+            return format_error_response(Exception(error_msg))
+        
         if not auth_manager.is_connected():
             return format_error_response(
                 Exception("Not connected. Please set SHIOAJI_API_KEY and SHIOAJI_SECRET_KEY environment variables.")

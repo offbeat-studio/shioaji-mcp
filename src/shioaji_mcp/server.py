@@ -104,7 +104,7 @@ async def handle_list_tools() -> list[Tool]:
         ),
         Tool(
             name="place_order",
-            description="Place a trading order",
+            description="Place a trading order (requires SHIOAJI_TRADING_ENABLED=true)",
             inputSchema={
                 "type": "object",
                 "properties": {
@@ -119,7 +119,7 @@ async def handle_list_tools() -> list[Tool]:
         ),
         Tool(
             name="cancel_order",
-            description="Cancel an existing order",
+            description="Cancel an existing order (requires SHIOAJI_TRADING_ENABLED=true)",
             inputSchema={
                 "type": "object",
                 "properties": {
