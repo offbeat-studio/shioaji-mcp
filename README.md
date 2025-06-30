@@ -1,56 +1,58 @@
-# Shioaji MCP Server
+# Shioaji MCP 伺服器
 
-A Model Context Protocol (MCP) server that provides access to Shioaji trading API functionality through standardized tools.
+提供永豐金證券 Shioaji 交易 API 功能的模型上下文協議 (MCP) 伺服器，透過標準化工具存取交易功能。
 
-## Features
+**繁體中文** | [English](README_en-US.md)
 
-### Authentication & Connection
-- `get_account_info` - Get account information and connection status
+## 功能特色
 
-### Market Data
-- `search_contracts` - Search for trading contracts by keyword, exchange, or category
-- `get_snapshots` - Get real-time market snapshots for specified contracts
-- `get_kbars` - Get historical K-bar data for contracts
+### 身份驗證與連線
+- `get_account_info` - 取得帳戶資訊和連線狀態
 
-### Trading Operations
-- `place_order` - Place buy/sell orders with specified parameters (requires permission)
-- `cancel_order` - Cancel existing orders by order ID (requires permission)
-- `list_orders` - List all orders with their status
-- `get_positions` - Get current positions and P&L
-- `get_account_balance` - Get account balance and margin information
+### 市場資料
+- `search_contracts` - 根據關鍵字、交易所或類別搜尋交易合約
+- `get_snapshots` - 取得指定合約的即時市場快照
+- `get_kbars` - 取得合約的歷史 K 線資料
 
-**⚠️ Trading Safety**: Trading operations (`place_order`, `cancel_order`) are disabled by default. Set `SHIOAJI_TRADING_ENABLED=true` to enable them.
+### 交易操作
+- `place_order` - 使用指定參數下單買賣（需要權限）
+- `cancel_order` - 根據訂單 ID 取消現有訂單（需要權限）
+- `list_orders` - 列出所有訂單及其狀態
+- `get_positions` - 取得目前持倉和損益
+- `get_account_balance` - 取得帳戶餘額和保證金資訊
 
-### Service Terms & Compliance
-- `check_terms_status` - Check service terms signing status and API testing completion
-- `run_api_test` - Run API test for service terms compliance (login and order tests)
+**⚠️ 交易安全性**：交易操作（`place_order`、`cancel_order`）預設為停用。設定 `SHIOAJI_TRADING_ENABLED=true` 來啟用交易功能。
 
-## Prerequisites
+### 服務條款與合規
+- `check_terms_status` - 檢查服務條款簽署狀態和 API 測試完成情況
+- `run_api_test` - 執行服務條款合規的 API 測試（登入和訂單測試）
 
-1. **SinoPac Securities Account**: You need a [SinoPac Securities account](https://www.sinotrade.com.tw/openact)
-2. **API Credentials**: Apply for and obtain API Key and Secret Key
-3. **Service Terms**: Complete document signing and API testing (see [docs/SERVICE_TERMS.md](docs/SERVICE_TERMS.md))
+## 必要條件
 
-For detailed information about using the Docker images from GitHub Container Registry, see [docs/CONTAINER_REGISTRY.md](docs/CONTAINER_REGISTRY.md).
+1. **永豐金證券帳戶**：您需要一個[永豐金證券帳戶](https://www.sinotrade.com.tw/openact)
+2. **API 憑證**：申請並取得 API Key 和 Secret Key
+3. **服務條款**：完成文件簽署和 API 測試（詳見 [docs/SERVICE_TERMS.md](docs/SERVICE_TERMS.md)）
 
-## Installation & Usage
+關於使用 GitHub Container Registry 的 Docker 映像詳細資訊，請參閱 [docs/CONTAINER_REGISTRY.md](docs/CONTAINER_REGISTRY.md)。
 
-### Using Pre-built Docker Image (Recommended)
+## 安裝與使用
 
-The easiest way to use this MCP server is with our pre-built Docker image from GitHub Container Registry:
+### 使用預建的 Docker 映像（建議）
+
+使用 GitHub Container Registry 預建的 Docker 映像是最簡單的方式：
 
 ```bash
-# Pull the latest stable image
+# 拉取最新穩定版映像
 docker pull ghcr.io/musingfox/shioaji-mcp:latest
 
-# Run MCP server (read-only mode)
+# 執行 MCP 伺服器（唯讀模式）
 docker run --rm -i --platform=linux/amd64 \
   -e SHIOAJI_API_KEY=your_api_key \
   -e SHIOAJI_SECRET_KEY=your_secret_key \
   -e SHIOAJI_TRADING_ENABLED=false \
   ghcr.io/musingfox/shioaji-mcp:latest
 
-# Run MCP server with trading enabled
+# 執行 MCP 伺服器並啟用交易功能
 docker run --rm -i --platform=linux/amd64 \
   -e SHIOAJI_API_KEY=your_api_key \
   -e SHIOAJI_SECRET_KEY=your_secret_key \
@@ -58,23 +60,23 @@ docker run --rm -i --platform=linux/amd64 \
   ghcr.io/musingfox/shioaji-mcp:latest
 ```
 
-#### Available Tags
+#### 可用標籤
 
-- `latest` - Latest stable release from the main branch
-- `vX.Y.Z` (e.g., `v0.1.0`) - Specific version releases
-- `dev` - Latest development build (may contain experimental features)
+- `latest` - 主分支的最新穩定發布版
+- `vX.Y.Z`（如 `v0.1.0`）- 特定版本發布
+- `dev` - 最新開發版本（可能包含實驗性功能）
 
-For production use, we recommend using a specific version tag.
+生產環境建議使用特定版本標籤。
 
-### Building Docker Image Locally
+### 本地建置 Docker 映像
 
-If you prefer to build the image locally:
+如果偏好本地建置映像：
 
 ```bash
-# Build Docker image
+# 建置 Docker 映像
 docker build -t shioaji-mcp .
 
-# Run MCP server (read-only mode)
+# 執行 MCP 伺服器（唯讀模式）
 docker run --rm -i --platform=linux/amd64 \
   -e SHIOAJI_API_KEY=your_api_key \
   -e SHIOAJI_SECRET_KEY=your_secret_key \
@@ -82,9 +84,9 @@ docker run --rm -i --platform=linux/amd64 \
   shioaji-mcp
 ```
 
-### MCP Client Configuration
+### MCP 客戶端設定
 
-Add the following configuration to your MCP client:
+在您的 MCP 客戶端中加入以下設定：
 
 ```json
 {
@@ -103,188 +105,188 @@ Add the following configuration to your MCP client:
 }
 ```
 
-**Trading Permissions**:
-- Set `SHIOAJI_TRADING_ENABLED=false` (default) for read-only mode
-- Set `SHIOAJI_TRADING_ENABLED=true` to enable trading operations
+**交易權限**：
+- 設定 `SHIOAJI_TRADING_ENABLED=false`（預設）為唯讀模式
+- 設定 `SHIOAJI_TRADING_ENABLED=true` 啟用交易操作
 
-**Example with trading enabled**:
+**啟用交易的範例**：
 ```json
 "-e", "SHIOAJI_TRADING_ENABLED=true"
 ```
 
-For development or testing, you can use the `dev` tag:
+開發或測試時，您可以使用 `dev` 標籤：
 
 ```json
 "ghcr.io/musingfox/shioaji-mcp:dev"
 ```
 
-### Python Client Example
+### Python 客戶端範例
 
-We provide a Python client example that demonstrates how to use the Shioaji MCP server programmatically:
+我們提供 Python 客戶端範例，示範如何程式化使用 Shioaji MCP 伺服器：
 
 ```bash
-# Install the MCP client library
+# 安裝 MCP 客戶端程式庫
 pip install mcp-client
 
-# Set your API credentials
+# 設定您的 API 憑證
 export SHIOAJI_API_KEY=your_api_key
 export SHIOAJI_SECRET_KEY=your_secret_key
 
-# Run the example
+# 執行範例
 ./examples/python_client.py
 ```
 
-The example demonstrates:
-- Connecting to the Shioaji MCP server
-- Getting account information
-- Searching for contracts
-- Getting real-time market data
-- Getting historical K-bar data
-- Retrieving positions and account balance
+範例展示：
+- 連接到 Shioaji MCP 伺服器
+- 取得帳戶資訊
+- 搜尋合約
+- 取得即時市場資料
+- 取得歷史 K 線資料
+- 檢索持倉和帳戶餘額
 
-See [examples/python_client.py](examples/python_client.py) for the full code.
+完整程式碼詳見 [examples/python_client.py](examples/python_client.py)。
 
-### Local Development (Linux/WSL)
+### 本地開發（Linux/WSL）
 
 ```bash
-# Clone repository
+# 複製專案
 git clone <repository-url>
 cd shioaji-mcp
 
-# Install dependencies
+# 安裝相依套件
 uv sync
 
-# Set environment variables
+# 設定環境變數
 export SHIOAJI_API_KEY=your_api_key
 export SHIOAJI_SECRET_KEY=your_secret_key
 
-# Run MCP server
+# 執行 MCP 伺服器
 uv run python -m shioaji_mcp.server
 ```
 
-## Development Guide
+## 開發指南
 
-### Environment Setup
+### 環境設定
 
 ```bash
-# Install development dependencies
+# 安裝開發相依套件
 uv sync --extra test --extra lint
 
-# Set environment variables
+# 設定環境變數
 cp .env.example .env
-# Edit .env and fill in your API credentials
+# 編輯 .env 並填入您的 API 憑證
 ```
 
-### Testing
+### 測試
 
 ```bash
-# Run tests
+# 執行測試
 uv run pytest
 
-# Test coverage
+# 測試覆蓋率
 uv run pytest --cov=src/shioaji_mcp
 ```
 
-### Code Quality
+### 程式碼品質
 
 ```bash
-# Check code style
+# 檢查程式碼風格
 uv run ruff check src/ tests/
 
-# Format code
+# 格式化程式碼
 uv run ruff format src/ tests/
 ```
 
-### Docker Development
+### Docker 開發
 
 ```bash
-# Build development Docker image
+# 建置開發 Docker 映像
 docker build -t shioaji-mcp-dev .
 
-# Test Docker container
+# 測試 Docker 容器
 docker run --rm -i --platform=linux/amd64 \
   -e SHIOAJI_API_KEY=test_key \
   -e SHIOAJI_SECRET_KEY=test_secret \
   shioaji-mcp-dev
 ```
 
-## Architecture
+## 架構
 
 ```
 src/shioaji_mcp/
-├── server.py          # MCP server main program
-├── tools/             # Tool modules
-│   ├── contracts.py   # Contract search
-│   ├── market_data.py # Market data
-│   ├── orders.py      # Order operations
-│   ├── positions.py   # Position queries
-│   └── terms.py       # Service terms
-└── utils/             # Utilities
-    ├── auth.py        # Authentication management
-    ├── formatters.py  # Data formatting
-    └── shioaji_wrapper.py # Shioaji wrapper
+├── server.py          # MCP 伺服器主程式
+├── tools/             # 工具模組
+│   ├── contracts.py   # 合約搜尋
+│   ├── market_data.py # 市場資料
+│   ├── orders.py      # 訂單操作
+│   ├── positions.py   # 持倉查詢
+│   └── terms.py       # 服務條款
+└── utils/             # 工具程式
+    ├── auth.py        # 身份驗證管理
+    ├── formatters.py  # 資料格式化
+    └── shioaji_wrapper.py # Shioaji 包裝器
 ```
 
-## Important Notes
+## 重要注意事項
 
-⚠️ **Real Trading API**
-- This MCP server connects to the real SinoPac Securities API
-- All trading operations will execute real orders
-- Make sure you understand the risks before trading
-- Recommend testing with small amounts first
-- This software is provided "as is" without warranty of any kind
-- Users are responsible for their own trading decisions and compliance with regulations
+⚠️ **真實交易 API**
+- 此 MCP 伺服器連接到真實的永豐金證券 API
+- 所有交易操作都會執行真實訂單
+- 請確保您在交易前了解風險
+- 建議先以小額進行測試
+- 本軟體以「現況」提供，不提供任何形式的保證
+- 使用者需負責自己的交易決策和法規遵循
 
-⚠️ **Compatibility**
+⚠️ **相容性**
 - Python 3.10-3.12
-- Recommended to run in Linux environment or Docker
-- macOS users should use Docker
+- 建議在 Linux 環境或 Docker 中執行
+- macOS 使用者應使用 Docker
 
-## Troubleshooting
+## 故障排除
 
-### Docker Setup Test
+### Docker 設定測試
 
-We provide a script to test your Docker setup for compatibility with the Shioaji MCP server:
+我們提供腳本來測試您的 Docker 設定是否與 Shioaji MCP 伺服器相容：
 
 ```bash
-# Make the script executable
+# 使腳本可執行
 chmod +x scripts/test_docker_setup.sh
 
-# Run the test script
+# 執行測試腳本
 ./scripts/test_docker_setup.sh
 ```
 
-This script checks for Docker installation, daemon status, permissions, platform support, and basic functionality.
+此腳本檢查 Docker 安裝、守護程序狀態、權限、平台支援和基本功能。
 
-### macOS Dependency Issues
+### macOS 相依性問題
 ```bash
-# Use Docker to resolve
+# 使用 Docker 解決
 docker run --platform=linux/amd64 ...
 ```
 
-### API Connection Issues
+### API 連線問題
 ```bash
-# Check environment variables
+# 檢查環境變數
 echo $SHIOAJI_API_KEY
 echo $SHIOAJI_SECRET_KEY
 
-# Check if API credentials are valid
+# 檢查 API 憑證是否有效
 docker run --rm -i --platform=linux/amd64 \
   -e SHIOAJI_API_KEY=your_key \
   -e SHIOAJI_SECRET_KEY=your_secret \
   shioaji-mcp python -c "from shioaji_mcp.utils.auth import auth_manager; print(auth_manager.is_connected())"
 ```
 
-## License
+## 授權條款
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+本專案採用 MIT 授權條款 - 詳見 [LICENSE](LICENSE) 檔案。
 
-## Contributing
+## 貢獻
 
-We welcome contributions to improve the Shioaji MCP server! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines on how to contribute to this project.
+我們歡迎貢獻來改善 Shioaji MCP 伺服器！請參閱 [CONTRIBUTING.md](CONTRIBUTING.md) 了解如何為此專案貢獻的詳細指南。
 
-1. Fork this repository
-2. Create a feature branch
-3. Make your changes with tests
-4. Run code checks and tests
-5. Submit a Pull Request
+1. Fork 此專案
+2. 建立功能分支
+3. 進行變更並加入測試
+4. 執行程式碼檢查和測試
+5. 提交 Pull Request
