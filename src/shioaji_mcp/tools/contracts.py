@@ -14,7 +14,9 @@ async def search_contracts(arguments: dict[str, Any]) -> list[Any]:
     try:
         if not auth_manager.is_connected():
             return format_error_response(
-                Exception("Not connected. Please set SHIOAJI_API_KEY and SHIOAJI_SECRET_KEY environment variables.")
+                Exception(
+                    "Not connected. Please set SHIOAJI_API_KEY and SHIOAJI_SECRET_KEY environment variables."
+                )
             )
 
         # Get search parameters
@@ -39,18 +41,22 @@ async def search_contracts(arguments: dict[str, Any]) -> list[Any]:
             try:
                 for code, contract in source.items():
                     if keyword:
-                        if (keyword.lower() not in contract.name.lower() and
-                            keyword not in code):
+                        if (
+                            keyword.lower() not in contract.name.lower()
+                            and keyword not in code
+                        ):
                             continue
 
-                    contracts.append({
-                        "code": code,
-                        "symbol": getattr(contract, "symbol", code),
-                        "name": contract.name,
-                        "category": cat,
-                        "exchange": exch,
-                        "currency": getattr(contract, "currency", "TWD")
-                    })
+                    contracts.append(
+                        {
+                            "code": code,
+                            "symbol": getattr(contract, "symbol", code),
+                            "name": contract.name,
+                            "category": cat,
+                            "exchange": exch,
+                            "currency": getattr(contract, "currency", "TWD"),
+                        }
+                    )
 
                     # Limit results
                     if len(contracts) >= 50:
@@ -62,10 +68,7 @@ async def search_contracts(arguments: dict[str, Any]) -> list[Any]:
             if len(contracts) >= 50:
                 break
 
-        return format_success_response(
-            contracts,
-            f"Found {len(contracts)} contracts"
-        )
+        return format_success_response(contracts, f"Found {len(contracts)} contracts")
 
     except Exception as e:
         logger.error(f"Contract search error: {e}")

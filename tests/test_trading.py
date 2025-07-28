@@ -129,4 +129,42 @@ async def test_get_account_balance_success():
     result = await get_account_balance({})
 
     assert len(result) == 2
-    assert "Account balance retrieved" in result[0]["text"]
+    assert "Retrieved balance" in result[0]["text"]
+
+
+@pytest.mark.asyncio
+async def test_get_positions_with_account_type():
+    """Test getting positions with specific account type parameter."""
+    # Test stock account (will fail without credentials but tests parameter handling)
+    result = await get_positions({"account_type": "stock"})
+    assert len(result) == 1
+    assert "Error" in result[0]["text"]  # Expected to fail without credentials
+
+    # Test futures account  
+    result = await get_positions({"account_type": "futures"})
+    assert len(result) == 1
+    assert "Error" in result[0]["text"]  # Expected to fail without credentials
+
+    # Test all accounts
+    result = await get_positions({"account_type": "all"})
+    assert len(result) == 1
+    assert "Error" in result[0]["text"]  # Expected to fail without credentials
+
+
+@pytest.mark.asyncio
+async def test_get_account_balance_with_account_type():
+    """Test getting account balance with specific account type parameter."""
+    # Test stock account (will fail without credentials but tests parameter handling)
+    result = await get_account_balance({"account_type": "stock"})
+    assert len(result) == 1
+    assert "Error" in result[0]["text"]  # Expected to fail without credentials
+
+    # Test futures account  
+    result = await get_account_balance({"account_type": "futures"})
+    assert len(result) == 1
+    assert "Error" in result[0]["text"]  # Expected to fail without credentials
+
+    # Test all accounts
+    result = await get_account_balance({"account_type": "all"})
+    assert len(result) == 1
+    assert "Error" in result[0]["text"]  # Expected to fail without credentials

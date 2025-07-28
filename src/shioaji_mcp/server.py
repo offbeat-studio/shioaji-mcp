@@ -32,7 +32,6 @@ server = Server("shioaji-mcp")
 async def handle_list_tools() -> list[Tool]:
     """List available tools."""
     return [
-
         Tool(
             name="get_account_info",
             description="Get account information",
@@ -41,7 +40,6 @@ async def handle_list_tools() -> list[Tool]:
                 "properties": {},
             },
         ),
-
         Tool(
             name="search_contracts",
             description="Search for trading contracts",
@@ -110,8 +108,14 @@ async def handle_list_tools() -> list[Tool]:
                     "contract": {"type": "string", "description": "Contract code"},
                     "action": {"type": "string", "description": "Buy or Sell"},
                     "quantity": {"type": "integer", "description": "Order quantity"},
-                    "price": {"type": "number", "description": "Order price (optional for market orders)"},
-                    "order_type": {"type": "string", "description": "Order type (ROD, IOC, FOK)"},
+                    "price": {
+                        "type": "number",
+                        "description": "Order price (optional for market orders)",
+                    },
+                    "order_type": {
+                        "type": "string",
+                        "description": "Order type (ROD, IOC, FOK)",
+                    },
                 },
                 "required": ["contract", "action", "quantity"],
             },
@@ -137,18 +141,32 @@ async def handle_list_tools() -> list[Tool]:
         ),
         Tool(
             name="get_positions",
-            description="Get current positions",
+            description="Get current positions from stock and/or futures accounts",
             inputSchema={
                 "type": "object",
-                "properties": {},
+                "properties": {
+                    "account_type": {
+                        "type": "string",
+                        "description": "Account type to query (all, stock, futures)",
+                        "enum": ["all", "stock", "futures"],
+                        "default": "all",
+                    }
+                },
             },
         ),
         Tool(
             name="get_account_balance",
-            description="Get account balance information",
+            description="Get account balance information for stock and/or futures accounts",
             inputSchema={
                 "type": "object",
-                "properties": {},
+                "properties": {
+                    "account_type": {
+                        "type": "string",
+                        "description": "Account type to query (all, stock, futures)",
+                        "enum": ["all", "stock", "futures"],
+                        "default": "all",
+                    }
+                },
             },
         ),
         Tool(
@@ -204,7 +222,9 @@ async def handle_get_account_info() -> list[Any]:
     try:
         if not auth_manager.is_connected():
             return format_error_response(
-                Exception("Not connected. Please set SHIOAJI_API_KEY and SHIOAJI_SECRET_KEY environment variables.")
+                Exception(
+                    "Not connected. Please set SHIOAJI_API_KEY and SHIOAJI_SECRET_KEY environment variables."
+                )
             )
 
         api = auth_manager.get_api()
@@ -212,17 +232,44 @@ async def handle_get_account_info() -> list[Any]:
 
         account_info = []
         for account in accounts:
-            account_info.append(
-                {
-                    "account_id": account.account_id,
-                    "broker_id": account.broker_id,
-                    "account_type": account.account_type,
-                    "signed": account.signed,
-                }
-            )
+            # Determine account type
+            acc_type = "unknown"
+            if hasattr(account, "account_type"):
+                acc_type_str = str(account.account_type).upper()
+                logger.info(f"Account {account.account_id}: type='{acc_type_str}'")
+                
+                # Handle both enum string format and short code format
+                if "STOCK" in acc_type_str or acc_type_str == "S":
+                    acc_type = "stock"
+                elif "FUTURE" in acc_type_str or acc_type_str == "F":
+                    acc_type = "futures"
+                elif acc_type_str == "H" or "HONG" in acc_type_str:
+                    acc_type = "hk_stock"
+                    
+                logger.info(f"Final parsed type for {account.account_id}: {acc_type}")
+
+            account_data = {
+                "account_id": account.account_id,
+                "broker_id": account.broker_id,
+                "account_type": account.account_type,
+                "account_type_parsed": acc_type,
+                "signed": account.signed,
+                "is_stock_account": acc_type == "stock",
+                "is_futures_account": acc_type == "futures",
+            }
+
+            # Add API shortcuts information
+            if acc_type == "stock" and hasattr(api, "stock_account"):
+                account_data["api_shortcut_available"] = True
+            elif acc_type == "futures" and hasattr(api, "futopt_account"):
+                account_data["api_shortcut_available"] = True
+            else:
+                account_data["api_shortcut_available"] = False
+
+            account_info.append(account_data)
 
         return format_success_response(
-            account_info, "Account information retrieved successfully"
+            account_info, f"Retrieved {len(account_info)} account(s) information"
         )
 
     except Exception as e:
@@ -241,22 +288,53 @@ async def main():
             InitializationOptions(
                 server_name="shioaji-mcp",
                 server_version="0.1.0",
-                capabilities=ServerCapabilities(
-                    tools={}
-                )
-            )
+                capabilities=ServerCapabilities(tools={}),
+            ),
         )
 
 
 def cli_main():
     """CLI entry point."""
+    import sys
+    import contextlib
+    import io
+    
+    # Store original stdout for MCP communication
+    original_stdout = sys.stdout
+    
+    # Create a custom stdout that filters out Shioaji messages
+    class FilteredStdout:
+        def __init__(self, original):
+            self.original = original
+            
+        def write(self, text):
+            # Only allow JSON-RPC messages to pass through
+            if text.strip().startswith('{"jsonrpc"'):
+                self.original.write(text)
+            elif text.strip() == "":
+                self.original.write(text)
+            # Suppress Shioaji connection messages
+            return len(text)
+            
+        def flush(self):
+            self.original.flush()
+            
+        def __getattr__(self, name):
+            return getattr(self.original, name)
+    
     try:
+        # Replace stdout with filtered version
+        sys.stdout = FilteredStdout(original_stdout)
+        
         asyncio.run(main())
     except KeyboardInterrupt:
         logger.info("Server stopped by user")
     except Exception as e:
         logger.error(f"Server error: {e}")
         raise
+    finally:
+        # Restore original stdout
+        sys.stdout = original_stdout
 
 
 if __name__ == "__main__":

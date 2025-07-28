@@ -19,59 +19,59 @@ class TestTradingPermissions:
 
     def test_trading_enabled_with_true(self):
         """Test trading enabled with 'true' value."""
-        with patch.dict(os.environ, {'SHIOAJI_TRADING_ENABLED': 'true'}):
+        with patch.dict(os.environ, {"SHIOAJI_TRADING_ENABLED": "true"}):
             assert is_trading_enabled()
 
     def test_trading_enabled_with_1(self):
         """Test trading enabled with '1' value."""
-        with patch.dict(os.environ, {'SHIOAJI_TRADING_ENABLED': '1'}):
+        with patch.dict(os.environ, {"SHIOAJI_TRADING_ENABLED": "1"}):
             assert is_trading_enabled()
 
     def test_trading_enabled_with_yes(self):
         """Test trading enabled with 'yes' value."""
-        with patch.dict(os.environ, {'SHIOAJI_TRADING_ENABLED': 'yes'}):
+        with patch.dict(os.environ, {"SHIOAJI_TRADING_ENABLED": "yes"}):
             assert is_trading_enabled()
 
     def test_trading_enabled_with_on(self):
         """Test trading enabled with 'on' value."""
-        with patch.dict(os.environ, {'SHIOAJI_TRADING_ENABLED': 'on'}):
+        with patch.dict(os.environ, {"SHIOAJI_TRADING_ENABLED": "on"}):
             assert is_trading_enabled()
 
     def test_trading_disabled_with_false(self):
         """Test trading disabled with 'false' value."""
-        with patch.dict(os.environ, {'SHIOAJI_TRADING_ENABLED': 'false'}):
+        with patch.dict(os.environ, {"SHIOAJI_TRADING_ENABLED": "false"}):
             assert not is_trading_enabled()
 
     def test_trading_disabled_with_0(self):
         """Test trading disabled with '0' value."""
-        with patch.dict(os.environ, {'SHIOAJI_TRADING_ENABLED': '0'}):
+        with patch.dict(os.environ, {"SHIOAJI_TRADING_ENABLED": "0"}):
             assert not is_trading_enabled()
 
     def test_trading_disabled_with_invalid_value(self):
         """Test trading disabled with invalid value."""
-        with patch.dict(os.environ, {'SHIOAJI_TRADING_ENABLED': 'maybe'}):
+        with patch.dict(os.environ, {"SHIOAJI_TRADING_ENABLED": "maybe"}):
             assert not is_trading_enabled()
 
     def test_case_insensitive_true(self):
         """Test case insensitive 'TRUE' value."""
-        with patch.dict(os.environ, {'SHIOAJI_TRADING_ENABLED': 'TRUE'}):
+        with patch.dict(os.environ, {"SHIOAJI_TRADING_ENABLED": "TRUE"}):
             assert is_trading_enabled()
 
     def test_case_insensitive_false(self):
         """Test case insensitive 'FALSE' value."""
-        with patch.dict(os.environ, {'SHIOAJI_TRADING_ENABLED': 'FALSE'}):
+        with patch.dict(os.environ, {"SHIOAJI_TRADING_ENABLED": "FALSE"}):
             assert not is_trading_enabled()
 
     def test_check_trading_permission_allowed(self):
         """Test trading permission when allowed."""
-        with patch.dict(os.environ, {'SHIOAJI_TRADING_ENABLED': 'true'}):
+        with patch.dict(os.environ, {"SHIOAJI_TRADING_ENABLED": "true"}):
             is_allowed, error_msg = check_trading_permission("place_order")
             assert is_allowed
             assert error_msg == ""
 
     def test_check_trading_permission_denied(self):
         """Test trading permission when denied."""
-        with patch.dict(os.environ, {'SHIOAJI_TRADING_ENABLED': 'false'}):
+        with patch.dict(os.environ, {"SHIOAJI_TRADING_ENABLED": "false"}):
             is_allowed, error_msg = check_trading_permission("place_order")
             assert not is_allowed
             assert "place_order" in error_msg

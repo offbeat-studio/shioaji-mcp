@@ -18,8 +18,8 @@ A Model Context Protocol (MCP) server that provides access to Shioaji trading AP
 - `place_order` - Place buy/sell orders with specified parameters (requires permission)
 - `cancel_order` - Cancel existing orders by order ID (requires permission)
 - `list_orders` - List all orders with their status
-- `get_positions` - Get current positions and P&L
-- `get_account_balance` - Get account balance and margin information
+- `get_positions` - Get current positions and P&L (supports stock, futures, or all accounts)
+- `get_account_balance` - Get account balance and margin information (supports stock, futures, or all accounts)
 
 **⚠️ Trading Safety**: Trading operations (`place_order`, `cancel_order`) are disabled by default. Set `SHIOAJI_TRADING_ENABLED=true` to enable them.
 

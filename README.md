@@ -18,8 +18,8 @@
 - `place_order` - 使用指定參數下單買賣（需要權限）
 - `cancel_order` - 根據訂單 ID 取消現有訂單（需要權限）
 - `list_orders` - 列出所有訂單及其狀態
-- `get_positions` - 取得目前持倉和損益
-- `get_account_balance` - 取得帳戶餘額和保證金資訊
+- `get_positions` - 取得目前持倉和損益（支援股票、期貨或全部帳戶）
+- `get_account_balance` - 取得帳戶餘額和保證金資訊（支援股票、期貨或全部帳戶）
 
 **⚠️ 交易安全性**：交易操作（`place_order`、`cancel_order`）預設為停用。設定 `SHIOAJI_TRADING_ENABLED=true` 來啟用交易功能。
 

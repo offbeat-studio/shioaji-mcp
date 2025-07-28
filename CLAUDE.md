@@ -64,6 +64,27 @@ src/shioaji_mcp/
     └── shioaji_wrapper.py # Shioaji API 包裝器
 ```
 
+## 期貨帳戶支援
+
+自版本 0.1.1 起，`get_positions` 和 `get_account_balance` 工具新增期貨帳戶支援：
+
+### 使用範例
+```json
+// 查詢所有帳戶持倉（預設）
+{"account_type": "all"}
+
+// 只查詢股票帳戶
+{"account_type": "stock"}
+
+// 只查詢期貨帳戶
+{"account_type": "futures"}
+```
+
+### 回應格式差異
+- **股票持倉**：包含股數、張數計算和持股成本分析
+- **期貨持倉**：包含合約數量、保證金和損益資訊
+- **期貨餘額**：額外提供維持保證金、初始保證金等期貨特有欄位
+
 ## 常用命令
 
 ### 開發環境設置
@@ -117,7 +138,7 @@ docker pull ghcr.io/musingfox/shioaji-mcp:latest
 - ✅ 身份驗證和帳戶管理 (3 工具)
 - ✅ 市場資料存取 (3 工具) 
 - ✅ 交易操作 (3 工具)
-- ✅ 持倉和餘額查詢 (2 工具)
+- ✅ 持倉和餘額查詢 (2 工具) - **新增期貨帳戶支援**
 
 ### 部署方式
 - ✅ GitHub Container Registry 分發

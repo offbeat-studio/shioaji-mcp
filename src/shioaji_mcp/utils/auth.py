@@ -33,20 +33,43 @@ class ShioajiAuth:
             secret_key = os.getenv("SHIOAJI_SECRET_KEY")
 
             if not all([api_key, secret_key]):
-                raise ValueError("Missing SHIOAJI_API_KEY or SHIOAJI_SECRET_KEY environment variables")
+                raise ValueError(
+                    "Missing SHIOAJI_API_KEY or SHIOAJI_SECRET_KEY environment variables"
+                )
 
             # Test Shioaji import before attempting connection
             try:
                 self._sj = get_shioaji()
                 self.api = self._sj.Shioaji()
             except ImportError as import_error:
-                raise RuntimeError(f"Shioaji import failed: {import_error}") from import_error
+                raise RuntimeError(
+                    f"Shioaji import failed: {import_error}"
+                ) from import_error
 
             # Login with API credentials only
-            self.api.login(
-                api_key=api_key,
-                secret_key=secret_key,
-            )
+            # Suppress stdout during login to prevent output mixing with MCP responses
+            import sys
+            import contextlib
+            import io
+            
+            # Capture stdout during login to prevent Shioaji output from interfering with MCP
+            with contextlib.redirect_stdout(io.StringIO()):
+                self.api.login(
+                    api_key=api_key,
+                    secret_key=secret_key,
+                )
+
+            # Check available accounts after login
+            accounts = self.api.list_accounts()
+            logger.info(f"Available accounts after login: {len(accounts)}")
+            
+            for i, account in enumerate(accounts):
+                account_type = getattr(account, 'account_type', 'unknown')
+                logger.info(f"Account {i}: {account.account_id} - Type: {account_type}")
+            
+            # Log stock and futures account shortcuts
+            logger.info(f"Stock account shortcut: {getattr(self.api, 'stock_account', None)}")
+            logger.info(f"Futopt account shortcut: {getattr(self.api, 'futopt_account', None)}")
 
             self._is_connected = True
             logger.info("Successfully auto-connected to Shioaji")
@@ -55,7 +78,9 @@ class ShioajiAuth:
             error_msg = str(e)
             if "expired" in error_msg.lower():
                 logger.error(f"API key expired: {e}")
-                raise RuntimeError(f"Shioaji API key has expired. Please get a new API key from your broker: {e}") from e
+                raise RuntimeError(
+                    f"Shioaji API key has expired. Please get a new API key from your broker: {e}"
+                ) from e
             else:
                 logger.error(f"Auto-connect failed: {e}")
             self._is_connected = False
@@ -87,7 +112,9 @@ class ShioajiAuth:
     def get_api(self):
         """Get the Shioaji API instance."""
         if not self.is_connected():
-            raise RuntimeError("Not connected to Shioaji API. Please set SHIOAJI_API_KEY and SHIOAJI_SECRET_KEY environment variables.")
+            raise RuntimeError(
+                "Not connected to Shioaji API. Please set SHIOAJI_API_KEY and SHIOAJI_SECRET_KEY environment variables."
+            )
         return self.api
 
 

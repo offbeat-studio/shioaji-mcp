@@ -1,0 +1,33 @@
+{
+  "mcpServers": {
+    "shioaji": {
+      "command": "docker",
+      "args": [
+        "run", "--rm", "-i", "--platform=linux/amd64",
+        "-e", "SHIOAJI_API_KEY=your_api_key_here",
+        "-e", "SHIOAJI_SECRET_KEY=your_secret_key_here",
+        "-e", "SHIOAJI_TRADING_ENABLED=false",
+        "ghcr.io/musingfox/shioaji-mcp:latest"
+      ],
+      "description": "Shioaji MCP Server with futures account support"
+    }
+  },
+  "usage_examples": {
+    "get_positions": {
+      "all_accounts": {"account_type": "all"},
+      "stock_only": {"account_type": "stock"},
+      "futures_only": {"account_type": "futures"}
+    },
+    "get_account_balance": {
+      "all_accounts": {"account_type": "all"},
+      "stock_only": {"account_type": "stock"},
+      "futures_only": {"account_type": "futures"}
+    }
+  },
+  "notes": [
+    "Set SHIOAJI_TRADING_ENABLED=true to enable trading operations",
+    "Use account_type parameter to query specific account types",
+    "Futures accounts provide additional margin and position information",
+    "Stock accounts include share/lot calculations and cost analysis"
+  ]
+}

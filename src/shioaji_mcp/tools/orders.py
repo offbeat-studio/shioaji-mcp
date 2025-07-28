@@ -20,7 +20,9 @@ async def place_order(arguments: dict[str, Any]) -> list[Any]:
 
         if not auth_manager.is_connected():
             return format_error_response(
-                Exception("Not connected. Please set SHIOAJI_API_KEY and SHIOAJI_SECRET_KEY environment variables.")
+                Exception(
+                    "Not connected. Please set SHIOAJI_API_KEY and SHIOAJI_SECRET_KEY environment variables."
+                )
             )
 
         # Get order parameters
@@ -41,15 +43,21 @@ async def place_order(arguments: dict[str, Any]) -> list[Any]:
             # Get contract object
             contract = api.Contracts.Stocks[contract_code]
             if not contract:
-                return format_error_response(Exception(f"Contract {contract_code} not found"))
+                return format_error_response(
+                    Exception(f"Contract {contract_code} not found")
+                )
 
             # Create order object
             order = api.Order(
                 price=price or 0,
                 quantity=quantity,
                 action=getattr(api.constant.Action, action.title()),
-                price_type=api.constant.StockPriceType.LMT if price else api.constant.StockPriceType.MKT,
-                order_type=getattr(api.constant.OrderType, order_type, api.constant.OrderType.ROD)
+                price_type=api.constant.StockPriceType.LMT
+                if price
+                else api.constant.StockPriceType.MKT,
+                order_type=getattr(
+                    api.constant.OrderType, order_type, api.constant.OrderType.ROD
+                ),
             )
 
             # Place order
@@ -63,7 +71,9 @@ async def place_order(arguments: dict[str, Any]) -> list[Any]:
                 "price": price or "Market",
                 "order_type": order_type,
                 "status": trade.status.status,
-                "timestamp": trade.order.order_datetime.isoformat() if trade.order.order_datetime else None,
+                "timestamp": trade.order.order_datetime.isoformat()
+                if trade.order.order_datetime
+                else None,
             }
 
             return format_success_response(
@@ -89,7 +99,9 @@ async def cancel_order(arguments: dict[str, Any]) -> list[Any]:
 
         if not auth_manager.is_connected():
             return format_error_response(
-                Exception("Not connected. Please set SHIOAJI_API_KEY and SHIOAJI_SECRET_KEY environment variables.")
+                Exception(
+                    "Not connected. Please set SHIOAJI_API_KEY and SHIOAJI_SECRET_KEY environment variables."
+                )
             )
 
         order_id = arguments.get("order_id")
@@ -100,11 +112,11 @@ async def cancel_order(arguments: dict[str, Any]) -> list[Any]:
 
         try:
             # Get order by ID and cancel it
-            orders = api.list_orders()
+            trades = api.list_trades()
             target_order = None
-            for order in orders:
-                if order.id == order_id:
-                    target_order = order
+            for trade in trades:
+                if trade.order.id == order_id:
+                    target_order = trade.order
                     break
 
             if not target_order:
@@ -116,7 +128,10 @@ async def cancel_order(arguments: dict[str, Any]) -> list[Any]:
             result = {
                 "order_id": order_id,
                 "status": "Cancelled",
-                "timestamp": cancel_result.order_datetime.isoformat() if hasattr(cancel_result, 'order_datetime') and cancel_result.order_datetime else None,
+                "timestamp": cancel_result.order_datetime.isoformat()
+                if hasattr(cancel_result, "order_datetime")
+                and cancel_result.order_datetime
+                else None,
             }
 
             return format_success_response(
@@ -137,25 +152,36 @@ async def list_orders(arguments: dict[str, Any]) -> list[Any]:
     try:
         if not auth_manager.is_connected():
             return format_error_response(
-                Exception("Not connected. Please set SHIOAJI_API_KEY and SHIOAJI_SECRET_KEY environment variables.")
+                Exception(
+                    "Not connected. Please set SHIOAJI_API_KEY and SHIOAJI_SECRET_KEY environment variables."
+                )
             )
 
         api = auth_manager.get_api()
 
         try:
             # Get real orders from API
-            orders = api.list_orders()
+            trades = api.list_trades()
 
             order_list = []
-            for order in orders:
+            for trade in trades:
+                order = trade.order
                 order_data = {
                     "order_id": order.id,
-                    "contract": order.contract.code if hasattr(order.contract, 'code') else str(order.contract),
-                    "action": order.action.value if hasattr(order.action, 'value') else str(order.action),
+                    "contract": order.contract.code
+                    if hasattr(order.contract, "code")
+                    else str(order.contract),
+                    "action": order.action.value
+                    if hasattr(order.action, "value")
+                    else str(order.action),
                     "quantity": order.quantity,
                     "price": order.price,
-                    "status": order.status.value if hasattr(order.status, 'value') else str(order.status),
-                    "timestamp": order.order_datetime.isoformat() if hasattr(order, 'order_datetime') and order.order_datetime else None,
+                    "status": order.status.value
+                    if hasattr(order.status, "value")
+                    else str(order.status),
+                    "timestamp": order.order_datetime.isoformat()
+                    if hasattr(order, "order_datetime") and order.order_datetime
+                    else None,
                 }
                 order_list.append(order_data)
 

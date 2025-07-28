@@ -15,7 +15,9 @@ async def get_snapshots(arguments: dict[str, Any]) -> list[Any]:
     try:
         if not auth_manager.is_connected():
             return format_error_response(
-                Exception("Not connected. Please set SHIOAJI_API_KEY and SHIOAJI_SECRET_KEY environment variables.")
+                Exception(
+                    "Not connected. Please set SHIOAJI_API_KEY and SHIOAJI_SECRET_KEY environment variables."
+                )
             )
 
         # Get contract codes
@@ -36,18 +38,22 @@ async def get_snapshots(arguments: dict[str, Any]) -> list[Any]:
                 # Get snapshot data
                 snapshot = api.snapshots([contract])[0]
 
-                snapshots.append({
-                    "code": contract_code,
-                    "name": contract.name,
-                    "close": snapshot.close,
-                    "open": snapshot.open,
-                    "high": snapshot.high,
-                    "low": snapshot.low,
-                    "volume": snapshot.volume,
-                    "bid_price": snapshot.bid_price,
-                    "ask_price": snapshot.ask_price,
-                    "timestamp": snapshot.ts.isoformat() if snapshot.ts else datetime.now().isoformat(),
-                })
+                snapshots.append(
+                    {
+                        "code": contract_code,
+                        "name": contract.name,
+                        "close": snapshot.close,
+                        "open": snapshot.open,
+                        "high": snapshot.high,
+                        "low": snapshot.low,
+                        "volume": snapshot.volume,
+                        "bid_price": snapshot.bid_price,
+                        "ask_price": snapshot.ask_price,
+                        "timestamp": snapshot.ts.isoformat()
+                        if snapshot.ts
+                        else datetime.now().isoformat(),
+                    }
+                )
             except Exception as e:
                 logger.warning(f"Failed to get snapshot for {contract_code}: {e}")
                 continue
@@ -66,7 +72,9 @@ async def get_kbars(arguments: dict[str, Any]) -> list[Any]:
     try:
         if not auth_manager.is_connected():
             return format_error_response(
-                Exception("Not connected. Please set SHIOAJI_API_KEY and SHIOAJI_SECRET_KEY environment variables.")
+                Exception(
+                    "Not connected. Please set SHIOAJI_API_KEY and SHIOAJI_SECRET_KEY environment variables."
+                )
             )
 
         # Get parameters
@@ -81,7 +89,9 @@ async def get_kbars(arguments: dict[str, Any]) -> list[Any]:
             # Get contract object
             contract = api.Contracts.Stocks[contract_code]
             if not contract:
-                return format_error_response(Exception(f"Contract {contract_code} not found"))
+                return format_error_response(
+                    Exception(f"Contract {contract_code} not found")
+                )
 
             # Get parameters with defaults
             start_date = arguments.get("start_date")
@@ -95,26 +105,26 @@ async def get_kbars(arguments: dict[str, Any]) -> list[Any]:
 
             # Get K-bar data
             kbars = api.kbars(
-                contract=contract,
-                start=start_date,
-                end=end_date,
-                timeout=30000
+                contract=contract, start=start_date, end=end_date, timeout=30000
             )
 
             # Format K-bar data
             formatted_kbars = []
             for kbar in kbars:
-                formatted_kbars.append({
-                    "date": kbar.ts.strftime("%Y-%m-%d %H:%M:%S"),
-                    "open": kbar.Open,
-                    "high": kbar.High,
-                    "low": kbar.Low,
-                    "close": kbar.Close,
-                    "volume": kbar.Volume,
-                })
+                formatted_kbars.append(
+                    {
+                        "date": kbar.ts.strftime("%Y-%m-%d %H:%M:%S"),
+                        "open": kbar.Open,
+                        "high": kbar.High,
+                        "low": kbar.Low,
+                        "close": kbar.Close,
+                        "volume": kbar.Volume,
+                    }
+                )
 
             return format_success_response(
-                formatted_kbars, f"Retrieved {len(formatted_kbars)} K-bars for {contract_code}"
+                formatted_kbars,
+                f"Retrieved {len(formatted_kbars)} K-bars for {contract_code}",
             )
 
         except Exception as e:

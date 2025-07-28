@@ -4,10 +4,12 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 def get_shioaji():
     """Get Shioaji module."""
     try:
         import shioaji as sj
+
         logger.info("Successfully imported real Shioaji module")
         return sj
     except ImportError as e:

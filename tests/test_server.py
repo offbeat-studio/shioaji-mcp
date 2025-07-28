@@ -21,14 +21,18 @@ async def test_list_tools():
     assert len(tools) >= 2
 
     tool_names = [tool.name for tool in tools]
-    assert "shioaji_login" in tool_names
+    # Core tools
     assert "get_account_info" in tool_names
-    assert "shioaji_logout" in tool_names
     assert "search_contracts" in tool_names
     assert "get_snapshots" in tool_names
     assert "get_kbars" in tool_names
+    # Trading tools
     assert "place_order" in tool_names
     assert "cancel_order" in tool_names
     assert "list_orders" in tool_names
+    # Position and balance tools
     assert "get_positions" in tool_names
     assert "get_account_balance" in tool_names
+    # Service terms tools
+    assert "check_terms_status" in tool_names
+    assert "run_api_test" in tool_names
