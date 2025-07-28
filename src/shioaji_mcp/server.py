@@ -236,7 +236,6 @@ async def handle_get_account_info() -> list[Any]:
             acc_type = "unknown"
             if hasattr(account, "account_type"):
                 acc_type_str = str(account.account_type).upper()
-                logger.info(f"Account {account.account_id}: type='{acc_type_str}'")
                 
                 # Handle both enum string format and short code format
                 if "STOCK" in acc_type_str or acc_type_str == "S":
@@ -245,8 +244,6 @@ async def handle_get_account_info() -> list[Any]:
                     acc_type = "futures"
                 elif acc_type_str == "H" or "HONG" in acc_type_str:
                     acc_type = "hk_stock"
-                    
-                logger.info(f"Final parsed type for {account.account_id}: {acc_type}")
 
             account_data = {
                 "account_id": account.account_id,

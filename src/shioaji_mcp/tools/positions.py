@@ -21,7 +21,6 @@ async def get_positions(arguments: dict[str, Any]) -> list[Any]:
 
         api = auth_manager.get_api()
         account_type = arguments.get("account_type", "all")  # all, stock, futures
-        logger.info(f"get_positions called with account_type: '{account_type}'")
 
         try:
             from ..utils.shioaji_wrapper import get_shioaji
@@ -89,16 +88,13 @@ async def get_positions(arguments: dict[str, Any]) -> list[Any]:
                     logger.warning(f"Failed to get stock positions: {e}")
 
             # Get futures positions
-            logger.info(f"Checking futures account: has_futopt_account={hasattr(api, 'futopt_account')}, futopt_account={getattr(api, 'futopt_account', None)}")
             if (
                 account_type in ["all", "futures"]
                 and hasattr(api, "futopt_account")
                 and api.futopt_account
             ):
                 try:
-                    logger.info("Attempting to get futures positions...")
                     futures_positions = api.list_positions(api.futopt_account)
-                    logger.info(f"Got {len(futures_positions)} futures positions")
                     for i, position in enumerate(futures_positions):
                         position_data = {
                             "index": i
@@ -145,7 +141,6 @@ async def get_positions(arguments: dict[str, Any]) -> list[Any]:
                     if pos.get("account_type") == account_type
                 ]
                 all_positions = filtered_positions
-                logger.info(f"Filtered to {len(all_positions)} positions for account_type: {account_type}")
 
             if not all_positions:
                 account_msg = (
@@ -210,21 +205,18 @@ async def get_account_balance(arguments: dict[str, Any]) -> list[Any]:
                         continue
 
                     # Get balance for this account
-                    logger.info(f"Getting balance for account {getattr(account, 'account_id', 'unknown')} type: {acc_type}")
                     if (
                         acc_type == "stock"
                         and hasattr(api, "stock_account")
                         and api.stock_account
                     ):
                         balance = api.account_balance(api.stock_account)
-                        logger.info("Got stock account balance")
                     elif (
                         acc_type == "futures"
                         and hasattr(api, "futopt_account")
                         and api.futopt_account
                     ):
                         balance = api.account_balance(api.futopt_account)
-                        logger.info("Got futures account balance")
                     else:
                         # Fallback - try with account directly
                         balance = api.account_balance(account)

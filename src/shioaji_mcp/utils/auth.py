@@ -59,18 +59,6 @@ class ShioajiAuth:
                     secret_key=secret_key,
                 )
 
-            # Check available accounts after login
-            accounts = self.api.list_accounts()
-            logger.info(f"Available accounts after login: {len(accounts)}")
-            
-            for i, account in enumerate(accounts):
-                account_type = getattr(account, 'account_type', 'unknown')
-                logger.info(f"Account {i}: {account.account_id} - Type: {account_type}")
-            
-            # Log stock and futures account shortcuts
-            logger.info(f"Stock account shortcut: {getattr(self.api, 'stock_account', None)}")
-            logger.info(f"Futopt account shortcut: {getattr(self.api, 'futopt_account', None)}")
-
             self._is_connected = True
             logger.info("Successfully auto-connected to Shioaji")
 
