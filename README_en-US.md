@@ -170,11 +170,11 @@ uv run python -m shioaji_mcp.server
 
 ```bash
 # Install development dependencies
-uv sync --extra test --extra lint
+uv sync --extra dev
 
-# Set environment variables
-cp .env.example .env
-# Edit .env and fill in your API credentials
+# Set environment variables (for local development)
+export SHIOAJI_API_KEY=your_api_key
+export SHIOAJI_SECRET_KEY=your_secret_key
 ```
 
 ### Testing
@@ -190,11 +190,12 @@ uv run pytest --cov=src/shioaji_mcp
 ### Code Quality
 
 ```bash
-# Check code style
-uv run ruff check src/ tests/
-
-# Format code
+# Check and format code
+uv run ruff check --fix src/ tests/
 uv run ruff format src/ tests/
+
+# Type checking
+uv run mypy src/
 ```
 
 ### Docker Development

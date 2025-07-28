@@ -27,14 +27,12 @@ dependencies = [
 shioaji-mcp = "shioaji_mcp.server:cli_main"
 
 [project.optional-dependencies]
-test = [
-    "pytest>=7.0.0",
+dev = [
+    "pytest>=8.4.1",
+    "pytest-cov>=4.0.0", 
     "pytest-asyncio>=0.21.0",
-]
-lint = [
     "ruff>=0.1.0",
-    "black>=23.0.0",
-    "isort>=5.12.0",
+    "mypy>=1.0.0",
 ]
 
 [build-system]
@@ -49,13 +47,9 @@ target-version = "py310"
 select = ["E", "F", "W", "I", "N", "UP", "B", "A", "C4", "T20"]
 ignore = ["E501"]
 
-[tool.black]
-line-length = 88
-target-version = ["py310"]
-
-[tool.isort]
-profile = "black"
-line_length = 88
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
 
 [tool.mypy]
 python_version = "3.11"
@@ -92,15 +86,4 @@ addopts = [
 markers = [
     "slow: marks tests as slow",
     "integration: marks tests as integration tests",
-]
-
-[dependency-groups]
-dev = [
-    "pytest>=8.4.1",
-    "pytest-cov>=4.0.0",
-    "pytest-asyncio>=0.21.0",
-    "ruff>=0.1.0",
-    "mypy>=1.0.0",
-    "black>=23.0.0",
-    "isort>=5.12.0",
 ]

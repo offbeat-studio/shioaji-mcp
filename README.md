@@ -170,11 +170,11 @@ uv run python -m shioaji_mcp.server
 
 ```bash
 # 安裝開發相依套件
-uv sync --extra test --extra lint
+uv sync --extra dev
 
-# 設定環境變數
-cp .env.example .env
-# 編輯 .env 並填入您的 API 憑證
+# 設定環境變數（如需本地開發）
+export SHIOAJI_API_KEY=your_api_key
+export SHIOAJI_SECRET_KEY=your_secret_key
 ```
 
 ### 測試
@@ -190,11 +190,12 @@ uv run pytest --cov=src/shioaji_mcp
 ### 程式碼品質
 
 ```bash
-# 檢查程式碼風格
-uv run ruff check src/ tests/
-
-# 格式化程式碼
+# 檢查和格式化程式碼
+uv run ruff check --fix src/ tests/
 uv run ruff format src/ tests/
+
+# 型別檢查
+uv run mypy src/
 ```
 
 ### Docker 開發
