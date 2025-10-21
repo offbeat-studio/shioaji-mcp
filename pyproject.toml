@@ -21,10 +21,12 @@ dependencies = [
     "pydantic>=2.0.0",
     "python-dotenv>=1.0.0",
     "shioaji==1.2.5",
+    "aiohttp>=3.9.0",
 ]
 
 [project.scripts]
 shioaji-mcp = "shioaji_mcp.server:cli_main"
+shioaji-mcp-http = "shioaji_mcp.http_server:http_main"
 
 [project.optional-dependencies]
 dev = [

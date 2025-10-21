@@ -37,7 +37,40 @@
 
 ## 安裝與使用
 
-### 使用預建的 Docker 映像（建議）
+Shioaji MCP Server 支援兩種運行模式：
+
+1. **stdio 模式**（預設）- 標準 MCP 協議，適合與 MCP 客戶端（如 Claude Desktop）整合
+2. **HTTP API 模式** - 提供 RESTful API，適合手機存取、自訂應用程式或 Tailscale VPN 環境
+
+### HTTP API 模式（新功能）
+
+HTTP API 模式讓您可以透過 HTTP 請求使用所有 MCP 功能，特別適合：
+- 從手機/平板存取
+- 建立自訂客戶端應用程式
+- 在 Tailscale VPN 環境中使用
+- 需要 RESTful API 介面的場景
+
+詳細資訊請參閱 [HTTP_API.md](HTTP_API.md)。
+
+#### 快速開始（HTTP 模式）
+
+```bash
+# 使用 Docker 執行 HTTP API 模式
+docker run --rm -p 127.0.0.1:8080:8080 \
+  -e MCP_MODE=http \
+  -e SHIOAJI_API_KEY=your_api_key \
+  -e SHIOAJI_SECRET_KEY=your_secret_key \
+  -e HTTP_API_KEY=your_secure_api_key \
+  -e HTTP_LISTEN_HOST=0.0.0.0 \
+  -e HTTP_LISTEN_PORT=8080 \
+  ghcr.io/musingfox/shioaji-mcp:latest
+
+# 測試 API
+curl -H "Authorization: Bearer your_secure_api_key" \
+  http://localhost:8080/api/tools/list
+```
+
+### 使用預建的 Docker 映像（建議 - stdio 模式）
 
 使用 GitHub Container Registry 預建的 Docker 映像是最簡單的方式：
 

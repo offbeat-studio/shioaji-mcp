@@ -20,13 +20,17 @@ RUN pip install --no-cache-dir uv && \
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1
+    PYTHONDONTWRITEBYTECODE=1 \
+    MCP_MODE=stdio
 
 # Create non-root user and set up permissions
 RUN useradd -r -s /bin/false appuser && \
     chown -R appuser:appuser /app && \
-    chmod -R 755 /app
+    chmod -R 755 /app && \
+    chmod +x /app/docker-entrypoint.sh
+
 USER appuser
 
-# MCP stdio mode
-ENTRYPOINT ["python", "-m", "shioaji_mcp.server"]
+# Support both stdio and HTTP modes via docker-entrypoint.sh
+# Set MCP_MODE=http to use HTTP API mode
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
