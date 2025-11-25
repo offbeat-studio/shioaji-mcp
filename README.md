@@ -2,7 +2,72 @@
 
 提供永豐金證券 Shioaji 交易 API 功能的模型上下文協議 (MCP) 伺服器，透過標準化工具存取交易功能。
 
+**🎉 v0.2.0 新功能**：現在不僅支援 MCP 協議，還提供互動式 CLI 工具和簡化的 Python SDK，讓你用最適合的方式來使用！
+
 **繁體中文** | [English](README_en-US.md)
+
+## 🚀 快速開始
+
+### 三種使用方式，任你選擇！
+
+#### 1️⃣ 互動式 CLI - 最簡單直覺 🎯
+
+```bash
+# 安裝
+pip install shioaji-mcp
+
+# 設定環境變數
+export SHIOAJI_API_KEY=your_api_key
+export SHIOAJI_SECRET_KEY=your_secret_key
+
+# 開始使用！
+shioaji-cli account        # 查詢帳戶
+shioaji-cli quote 2330     # 台積電即時報價
+shioaji-cli search 台積電  # 搜尋股票
+shioaji-cli positions      # 查詢持倉
+shioaji-cli balance        # 查詢餘額
+```
+
+#### 2️⃣ Python SDK - 開發者最愛 💻
+
+```python
+from shioaji_mcp.sdk import ShioajiSDK
+
+# 初始化
+sdk = ShioajiSDK()
+
+# 取得即時報價
+quote = sdk.get_quote("2330")
+print(f"台積電: ${quote['close']}")
+
+# 取得歷史資料
+history = sdk.get_history("2330", days=30)
+
+# 查詢持倉
+positions = sdk.get_positions()
+```
+
+#### 3️⃣ MCP Server - AI 助理專用 🤖
+
+在 Claude Desktop 設定檔加入：
+
+```json
+{
+  "mcpServers": {
+    "shioaji": {
+      "command": "uvx",
+      "args": ["shioaji-mcp"],
+      "env": {
+        "SHIOAJI_API_KEY": "your_key",
+        "SHIOAJI_SECRET_KEY": "your_secret"
+      }
+    }
+  }
+}
+```
+
+📖 **詳細使用指南**：[docs/USAGE_GUIDE.md](docs/USAGE_GUIDE.md)
+📝 **範例程式**：[examples/](examples/)
 
 ## 功能特色
 

@@ -21,18 +21,35 @@ dependencies = [
     "pydantic>=2.0.0",
     "python-dotenv>=1.0.0",
     "shioaji==1.2.5",
+    "typer>=0.9.0",
+    "rich>=13.0.0",
 ]
 
 [project.scripts]
 shioaji-mcp = "shioaji_mcp.server:cli_main"
+shioaji-cli = "shioaji_mcp.cli:main"
 
 [project.optional-dependencies]
 dev = [
     "pytest>=8.4.1",
-    "pytest-cov>=4.0.0", 
+    "pytest-cov>=4.0.0",
     "pytest-asyncio>=0.21.0",
     "ruff>=0.1.0",
     "mypy>=1.0.0",
+]
+cli = [
+    "typer>=0.9.0",
+    "rich>=13.0.0",
+]
+tui = [
+    "textual>=0.47.0",
+    "textual-plotext>=0.2.0",
+]
+all = [
+    "typer>=0.9.0",
+    "rich>=13.0.0",
+    "textual>=0.47.0",
+    "textual-plotext>=0.2.0",
 ]
 
 [build-system]
@@ -45,7 +62,7 @@ target-version = "py310"
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "N", "UP", "B", "A", "C4", "T20"]
-ignore = ["E501"]
+ignore = ["E501", "B904"]  # B904: raise from within except without explicit exception chaining
 
 [tool.ruff.format]
 quote-style = "double"
