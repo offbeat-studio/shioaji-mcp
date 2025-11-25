@@ -27,6 +27,7 @@ dependencies = [
 
 [project.scripts]
 shioaji-mcp = "shioaji_mcp.server:cli_main"
+shioaji-mcp-simple = "shioaji_mcp.server_simple:cli_main"
 shioaji-cli = "shioaji_mcp.cli:main"
 
 [project.optional-dependencies]

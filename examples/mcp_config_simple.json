@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "shioaji-simple": {
+      "command": "uvx",
+      "args": ["shioaji-mcp-simple"],
+      "env": {
+        "SHIOAJI_API_KEY": "your_api_key_here",
+        "SHIOAJI_SECRET_KEY": "your_secret_key_here",
+        "SHIOAJI_TRADING_ENABLED": "false"
+      }
+    }
+  }
+}

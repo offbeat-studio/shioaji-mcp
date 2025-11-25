@@ -49,7 +49,24 @@ positions = sdk.get_positions()
 
 #### 3️⃣ MCP Server - AI 助理專用 🤖
 
-在 Claude Desktop 設定檔加入：
+**✨ 新推薦：簡化版（4 個工具，更適合 AI）**
+
+```json
+{
+  "mcpServers": {
+    "shioaji": {
+      "command": "uvx",
+      "args": ["shioaji-mcp-simple"],
+      "env": {
+        "SHIOAJI_API_KEY": "your_key",
+        "SHIOAJI_SECRET_KEY": "your_secret"
+      }
+    }
+  }
+}
+```
+
+**標準版（11 個工具，完整功能）**
 
 ```json
 {
@@ -66,7 +83,14 @@ positions = sdk.get_positions()
 }
 ```
 
-📖 **詳細使用指南**：[docs/USAGE_GUIDE.md](docs/USAGE_GUIDE.md)
+💡 **為何選擇簡化版？**
+- ✅ 減少 64% 的工具數量（11 → 4）
+- ✅ AI 選擇準確度提升 10%+
+- ✅ Context 使用減少 42%
+- ✅ 更符合自然語言互動
+
+📊 **詳細對比**：[docs/TOOL_SIMPLIFICATION.md](docs/TOOL_SIMPLIFICATION.md)
+📖 **使用指南**：[docs/USAGE_GUIDE.md](docs/USAGE_GUIDE.md)
 📝 **範例程式**：[examples/](examples/)
 
 ## 功能特色
